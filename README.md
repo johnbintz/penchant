@@ -23,7 +23,7 @@ Installs a bunch of scripts into the `scripts` directory of your project:
 
 Yeah, it's a `Gemfile` with ERB in it:
 
-``` ruby
+``` erb
 <% if env == "local" %>
   gem 'guard', :path => '../guard'
 <% else %>

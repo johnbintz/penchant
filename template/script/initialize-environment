@@ -22,5 +22,8 @@ end
 puts "Installing git hooks"
 system %{script/install-git-hooks}
 
+puts "Trying to run rake bootstrap..."
+system %{rake bootstrap}
+
 puts "Done!"
 

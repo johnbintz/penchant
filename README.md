@@ -17,7 +17,12 @@ Installs a bunch of scripts into the `scripts` directory of your project:
 * `gemfile` which switches between `Gemfile.erb` environments
 * `install-git-hooks` which will do just what it says
 * `hooks/pre-commit`, one of the hooks the prior script installs
-* `initialize-environment`, which bootstraps your locak environment so you can get up and running
+* `initialize-environment`, which bootstraps your local environment so you can get up and running
+
+## initialize-environment
+
+It will also try to run `rake bootstrap`, so add a `:bootstrap` task for things that should happen when you start going
+(make databases, other stuff, etc, whatever).
 
 ## Gemfile.erb?!
 

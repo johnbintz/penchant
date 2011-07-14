@@ -1,5 +1,8 @@
 #!/bin/bash
 
+unset GIT_DIR
+script/gemfile remote
+
 bundle exec rake
 if [ $? -ne 0 ]; then exit $?; fi
 

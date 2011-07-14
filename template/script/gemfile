@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 
+if !File.file?('Gemfile.erb')
+  puts "Not using Gemfile.erb, exiting."
+  exit 0
+end
+
 require 'erb'
 
 env = ARGV[0]

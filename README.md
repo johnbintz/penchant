@@ -29,6 +29,7 @@ Yeah, it's a `Gemfile` with ERB in it:
 <% else %>
   gem 'guard', :git => 'git://github.com/johnbintz/guard.git'
 <% end %>
+```
 
 Use `script/gemfile local` to get at the local ones, and `script/gemfile remote` (or anything, really) to get at the remote ones.
 It then runs `bundle install`.

@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'thor'
+
+class Penchant < Thor
+  include Thor::Actions
+  source_root File.expand_path('../..', __FILE__)
+
+  desc "install", "Copy the common scripts to the project"
+  method_options :dir => 'script'
+  def install
+    directory 'template/script', options[:dir]
+    Dir[File.join(options[:dir], '**/*')].each { |file| File.chmod(0755, file) }
+  end
+end
+
+Penchant.start

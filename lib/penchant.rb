@@ -1,0 +1,3 @@
+module Penchant
+  # Your code goes here...
+end

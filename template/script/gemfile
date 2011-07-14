@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+require 'erb'
+
+env = ARGV[0]
+
+File.open('Gemfile', 'w') { |fh| fh.print ERB.new(File.read('Gemfile.erb')).result(binding) }
+system %{bundle}
+
+puts "Gemfile switched to #{env}"
+

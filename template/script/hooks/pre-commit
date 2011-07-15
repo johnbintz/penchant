@@ -4,5 +4,6 @@ unset GIT_DIR
 script/gemfile remote
 
 bundle exec rake
-if [ $? -ne 0 ]; then exit $?; fi
+R=$?
+if [ $R -ne 0 ]; then exit $R; fi
 

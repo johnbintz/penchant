@@ -22,8 +22,14 @@ end
 puts "Installing git hooks"
 system %{script/install-git-hooks}
 
-puts "Trying to run rake bootstrap..."
-system %{rake bootstrap}
+bundle = File.file?('Gemfile') ? 'bundle exec' : ''
+
+command = [ bundle, 'rake', '-s', '-T', 'bootstrap' ]
+
+if !(%x{#{command.join(' ')}}).empty?
+  puts "Trying to run rake bootstrap..."
+  system %{#{bundle} rake bootstrap}
+end
 
 puts "Done!"
 

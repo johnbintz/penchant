@@ -1,3 +1,3 @@
 module Penchant
-  # Your code goes here...
+  autoload :Gemfile, 'penchant/gemfile'
 end

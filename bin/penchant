@@ -15,6 +15,15 @@ class PenchantCLI < Thor
     Dir[File.join(options[:dir], '**/*')].each { |file| File.chmod(0755, file) }
   end
 
+  desc "convert", "Make an existing project Penchant-isized"
+  method_options :dir => 'script'
+  def convert
+    install
+    copy_file 'Gemfile', 'Gemfile.erb'
+    remove_file 'Gemfile'
+    gemfile(:remote)
+  end
+
   desc "gemfile ENV", "Switch the gemfile environment"
   def gemfile(env)
     Penchant::Gemfile.do_full_env_switch!(env)

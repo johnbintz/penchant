@@ -22,16 +22,18 @@ Installs a bunch of scripts into the `scripts` directory of your project:
 ## initialize-environment
 
 It will also try to run `rake bootstrap`, so add a `:bootstrap` task for things that should happen when you start going
-(make databases, other stuff, etc, whatever).
+(make databases, other stuff, etc, whatever). This won't run if the `:bootstrap` task is not there.
 
 ## Gemfile.erb?!
 
 Yeah, it's a `Gemfile` with ERB in it:
 
 ``` erb
-<% if env == "local" %>
+<% env :local do %>
   gem 'guard', :path => '../guard'
-<% else %>
+<% end %>
+
+<% env :remote do %>
   gem 'guard', :git => 'git://github.com/johnbintz/guard.git'
 <% end %>
 ```
@@ -39,14 +41,25 @@ Yeah, it's a `Gemfile` with ERB in it:
 Use `script/gemfile local` to get at the local ones, and `script/gemfile remote` (or anything, really) to get at the remote ones.
 It then runs `bundle install`.
 
+You can also run `penchant gemfile ENV`.
+
+### What environment are you currently using in that Gemfile?
+
+`head -n 1` that puppy, or `penchant gemfile-env`.
+
 ## git hook?!
 
-It runs `script/gemfile remote` then runs `bundle exec rake`. Make sure your default Rake task for the project runs your
-tests and performs any other magic necessary before each commit.
+It runs `penchant gemfile remote` then runs `bundle exec rake`. Make sure your default Rake task for the project runs your
+tests and performs any other magic necessary before each commit. Your re-environmented Gemfile and Gemfile.lock will be added
+to your commit if they've changed.
 
 ## How?!
 
 * `gem install penchant`
 * `cd` to your project directory
-* `penchant install` (can do `--dir=WHEREVER`, too)
+
+And then one of the following:
+
+* `penchant install` for a new project (`--dir=WHEREVER` will install the scripts to a directory other than `$PWD/scripts`)
+* `penchant convert` for an existing project (`--dir=WHEVEVER` works here, too)
 

@@ -38,7 +38,7 @@ Yeah, it's a `Gemfile` with ERB in it:
 <% end %>
 ```
 
-Use `script/gemfile local` to get at the local ones, and `script/gemfile remote` (or anything, really) to get at the remote ones.
+Use `script/gemfile local` to get at the local ones, and `script/gemfile remote` to get at the remote ones.
 It then runs `bundle install`.
 
 You can also run `penchant gemfile ENV`.

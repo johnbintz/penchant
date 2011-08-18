@@ -41,7 +41,7 @@ module Penchant
       File.readlines(gemfile_path).first.strip[%r{environment: (.*)}, 1]
     end
 
-    def switch_to!(gemfile_env)
+    def switch_to!(gemfile_env = nil)
       @env = gemfile_env
       template = File.read(gemfile_erb_path)
 

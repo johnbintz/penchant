@@ -1,7 +1,10 @@
 #!/bin/bash
 
+OLD_GIT_DIR=$GIT_DIR
+
 unset GIT_DIR
-script/gemfile remote
+penchant gemfile remote
+GIT_DIR=$OLD_GIT_DIR
 
 bundle exec rake
 R=$?

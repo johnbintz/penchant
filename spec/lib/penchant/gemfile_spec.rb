@@ -84,13 +84,23 @@ ERB
         subject.switch_to!(:test)
 
         File.read('Gemfile').should include('test')
+        File.read('Gemfile').should_not include('not')
         File.read('Gemfile').should include('all')
       end
 
       it 'should not render test data' do
         subject.switch_to!(:not)
 
+        File.read('Gemfile').should_not include('test')
         File.read('Gemfile').should include('not')
+        File.read('Gemfile').should include('all')
+      end
+
+      it 'should not render either' do
+        subject.switch_to!
+
+        File.read('Gemfile').should_not include('test')
+        File.read('Gemfile').should_not include('not')
         File.read('Gemfile').should include('all')
       end
     end

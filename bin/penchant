@@ -19,6 +19,12 @@ class PenchantCLI < Thor
   def gemfile(env)
     Penchant::Gemfile.do_full_env_switch!(env)
   end
+
+  desc "gemfile-env", "Get the gemfile environment"
+  def gemfile_env
+    gemfile = Penchant::Gemfile.new
+    puts gemfile.environment
+  end
 end
 
 PenchantCLI.start

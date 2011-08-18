@@ -49,15 +49,51 @@ GEMFILE
         its(:environment) { should == environment }
       end
     end
+
+    describe '#switch_to!' do
+      it 'should raise an exception' do
+        expect { subject.switch_to!(:whatever) }.to raise_error(Errno::ENOENT)
+      end
+    end
   end
 
   context 'with gemfile.erb' do
+    let(:erb_data) { 'whatever' }
+
     before do
-      write_file(gemfile_erb_path) { "whatever" }
+      write_file(gemfile_erb_path) { erb_data }
     end
 
     it { should_not have_gemfile }
     it { should have_gemfile_erb }
+
+    describe '#switch_to!' do
+      let(:erb_data) { <<-ERB }
+<% env :test do %>
+  test
+<% end %>
+
+<% env :not do %>
+  not
+<% end %>
+
+all
+ERB
+
+      it 'should render test data' do
+        subject.switch_to!(:test)
+
+        File.read('Gemfile').should include('test')
+        File.read('Gemfile').should include('all')
+      end
+
+      it 'should not render test data' do
+        subject.switch_to!(:not)
+
+        File.read('Gemfile').should include('not')
+        File.read('Gemfile').should include('all')
+      end
+    end
   end
 end
 

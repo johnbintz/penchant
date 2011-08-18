@@ -2,8 +2,9 @@
 
 require 'rubygems'
 require 'thor'
+require 'penchant'
 
-class Penchant < Thor
+class PenchantCLI < Thor
   include Thor::Actions
   source_root File.expand_path('../..', __FILE__)
 
@@ -13,6 +14,11 @@ class Penchant < Thor
     directory 'template/script', options[:dir]
     Dir[File.join(options[:dir], '**/*')].each { |file| File.chmod(0755, file) }
   end
+
+  desc "gemfile ENV", "Switch the gemfile environment"
+  def gemfile(env)
+    Penchant::Gemfile.do_full_env_switch!(env)
+  end
 end
 
-Penchant.start
+PenchantCLI.start

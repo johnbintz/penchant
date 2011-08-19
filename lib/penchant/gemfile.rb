@@ -8,12 +8,10 @@ module Penchant
       def do_full_env_switch!(env)
         gemfile = Penchant::Gemfile.new
         if !gemfile.has_gemfile_erb?
-          puts "Not using Gemfile.erb, exiting."
           return false
         end
 
         gemfile.switch_to!(env)
-        system %{bundle}
       end
     end
 

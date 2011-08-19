@@ -24,15 +24,22 @@ class PenchantCLI < Thor
     gemfile(:remote)
   end
 
-  desc "gemfile ENV", "Switch the gemfile environment"
-  def gemfile(env)
+  desc "gemfile ENV", "Switch the gemfile environment, or rebuild the current environment if not given"
+  def gemfile(env = get_current_env)
+    puts "[penchant] Rebunding for #{env} environment..."
     Penchant::Gemfile.do_full_env_switch!(env)
   end
 
   desc "gemfile-env", "Get the gemfile environment"
   def gemfile_env
-    gemfile = Penchant::Gemfile.new
-    puts gemfile.environment
+    puts get_current_end
+  end
+
+  no_tasks do
+    def get_current_env
+      gemfile = Penchant::Gemfile.new
+      gemfile.environment
+    end
   end
 end
 

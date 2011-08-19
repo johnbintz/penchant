@@ -41,7 +41,7 @@ class PenchantCLI < Thor
 
   desc "gemfile-env", "Get the gemfile environment"
   def gemfile_env
-    puts get_current_end
+    puts get_current_env
   end
 
   no_tasks do

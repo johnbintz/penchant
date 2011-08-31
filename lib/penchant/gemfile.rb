@@ -27,6 +27,10 @@ module Penchant
       File.file?('Gemfile')
     end
 
+    def has_dot_penchant?
+      File.file?('.penchant')
+    end
+
     def gemfile_erb_path
       file_in_path('Gemfile.erb')
     end
@@ -48,6 +52,8 @@ module Penchant
 
         fh.print ERB.new(template).result(binding)
       end
+
+      run_dot_penchant!(gemfile_env) if has_dot_penchant?
     end
 
     private
@@ -57,6 +63,10 @@ module Penchant
 
     def env(check, &block)
       instance_eval(&block) if check.to_s == @env.to_s
+    end
+
+    def run_dot_penchant!(env)
+      DotPenchant.run(env)
     end
   end
 end

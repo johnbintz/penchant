@@ -114,8 +114,6 @@ ERB
         it { should have_dot_penchant }
 
         it 'should process the file' do
-          subject.expects(:run_dot_penchant!).with(:not)
-
           subject.switch_to!(:not)
         end
       end

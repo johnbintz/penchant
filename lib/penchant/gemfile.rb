@@ -7,6 +7,8 @@ module Penchant
     class << self
       def do_full_env_switch!(env)
         gemfile = Penchant::Gemfile.new
+        run_dot_penchant!(gemfile_env) if has_dot_penchant?
+
         if !gemfile.has_gemfile_erb?
           return false
         end
@@ -52,8 +54,6 @@ module Penchant
 
         fh.print ERB.new(template).result(binding)
       end
-
-      run_dot_penchant!(gemfile_env) if has_dot_penchant?
     end
 
     private

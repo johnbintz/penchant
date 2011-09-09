@@ -19,11 +19,6 @@ Installs a bunch of scripts into the `scripts` directory of your project:
 * `hooks/pre-commit`, one of the hooks the prior script installs
 * `initialize-environment`, which bootstraps your local environment so you can get up and running
 
-## initialize-environment
-
-It will also try to run `rake bootstrap`, so add a `:bootstrap` task for things that should happen when you start going
-(make databases, other stuff, etc, whatever). This won't run if the `:bootstrap` task is not there.
-
 ## Gemfile.erb?!
 
 Yeah, it's a `Gemfile` with ERB in it:
@@ -42,6 +37,15 @@ Use `script/gemfile local` to get at the local ones, and `script/gemfile remote`
 It then runs `bundle install`.
 
 You can also run `penchant gemfile ENV`.
+
+## initialize-environment
+
+Get new developers up to speed fast! `script/initialize-environment` does the following when run:
+
+* Check out any remote repos found in `Gemfile.erb` to the same directory where your current project lives.
+  That way, you can have your `Gemfile.erb` set up as above and everything works cleanly.
+* Runs `script/gemfile remote` to set your project to using remote repositories.
+* Runs `rake bootstrap` for the project if it exists.
 
 ### After-`gemfile` hooks?
 

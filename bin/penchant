@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'thor'
 require 'penchant'
+require 'fileutils'
 
 class PenchantCLI < Thor
   include Thor::Actions
@@ -19,8 +20,7 @@ class PenchantCLI < Thor
   method_options :dir => 'script'
   def convert
     install
-    copy_file 'Gemfile', 'Gemfile.erb'
-    remove_file 'Gemfile'
+    FileUtils.mv 'Gemfile', 'Gemfile.erb'
     gemfile(:remote)
   end
 
@@ -50,6 +50,8 @@ class PenchantCLI < Thor
       gemfile.environment
     end
   end
+
+  default_task :gemfile
 end
 
 PenchantCLI.start

@@ -103,6 +103,20 @@ ERB
         File.read('Gemfile').should_not include('not')
         File.read('Gemfile').should include('all')
       end
+
+      it { should_not have_dot_penchant }
+
+      context 'with .penchant' do
+        before do
+          File.open('.penchant', 'wb')
+        end
+
+        it { should have_dot_penchant }
+
+        it 'should process the file' do
+          subject.switch_to!(:not)
+        end
+      end
     end
   end
 end

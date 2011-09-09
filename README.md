@@ -43,6 +43,17 @@ It then runs `bundle install`.
 
 You can also run `penchant gemfile ENV`.
 
+### After-`gemfile` hooks?
+
+Drop a file called `.penchant` in your project directory. It'll get executed every time you switch environments using
+Penchant. I use it to tell my Hydra clients to sync and update their Gemfiles, too:
+
+``` ruby
+# rake knows if you need "bundle exec" or not.
+
+rake "hydra:sync hydra:remote:bundle"
+```
+
 ### What environment are you currently using in that Gemfile?
 
 `head -n 1` that puppy, or `penchant gemfile-env`.

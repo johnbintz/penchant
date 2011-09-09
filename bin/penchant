@@ -28,7 +28,7 @@ class PenchantCLI < Thor
   def gemfile(env = get_current_env)
     if env
       puts "[penchant] Rebunding for #{env} environment..."
-      !Penchant::Gemfile.do_full_env_switch!(env)
+      Penchant::Gemfile.do_full_env_switch!(env)
     end
 
     gemfile = Penchant::Gemfile.new

@@ -14,6 +14,7 @@ class PenchantCLI < Thor
   def install
     directory 'template/script', options[:dir]
     Dir[File.join(options[:dir], '**/*')].each { |file| File.chmod(0755, file) }
+    FileUtils.ln_sf File.join(Dir.pwd, 'script/hooks/pre-commit'), '.git/hooks/pre-commit'
   end
 
   desc "convert", "Make an existing project Penchant-isized"

@@ -77,6 +77,10 @@ GEMFILE
   not
 <% end %>
 
+<% no_deployment do %>
+  diddeploy
+<% end %>
+
 all
 ERB
 
@@ -84,6 +88,7 @@ ERB
         subject.switch_to!(:test)
 
         File.read('Gemfile').should include('test')
+        File.read('Gemfile').should include('diddeploy')
         File.read('Gemfile').should_not include('not')
         File.read('Gemfile').should include('all')
       end
@@ -92,6 +97,7 @@ ERB
         subject.switch_to!(:not)
 
         File.read('Gemfile').should_not include('test')
+        File.read('Gemfile').should include('diddeploy')
         File.read('Gemfile').should include('not')
         File.read('Gemfile').should include('all')
       end
@@ -101,6 +107,16 @@ ERB
 
         File.read('Gemfile').should_not include('test')
         File.read('Gemfile').should_not include('not')
+        File.read('Gemfile').should include('diddeploy')
+        File.read('Gemfile').should include('all')
+      end
+
+      it 'should skip no_deployment sections' do
+        subject.switch_to!(nil, true)
+
+        File.read('Gemfile').should_not include('test')
+        File.read('Gemfile').should_not include('not')
+        File.read('Gemfile').should_not include('diddeploy')
         File.read('Gemfile').should include('all')
       end
 

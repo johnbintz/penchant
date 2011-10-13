@@ -14,7 +14,10 @@ class PenchantCLI < Thor
   def install
     directory 'template/script', options[:dir]
     Dir[File.join(options[:dir], '**/*')].each { |file| File.chmod(0755, file) }
-    FileUtils.ln_sf File.join(Dir.pwd, 'script/hooks/pre-commit'), '.git/hooks/pre-commit'
+
+    Dir['script/hooks/*'].each do |hook|
+      FileUtils.ln_sf File.join(Dir.pwd, hook), ".git/hooks/#{File.split(hook).last}"
+    end
   end
 
   desc "convert", "Make an existing project Penchant-isized"
@@ -49,7 +52,9 @@ class PenchantCLI < Thor
   no_tasks do
     def get_current_env
       gemfile = Penchant::Gemfile.new
-      gemfile.environment
+      out = [ gemfile.environment ]
+      out << "deployment" if gemfile.deployment?
+      out.join(' ')
     end
   end
 

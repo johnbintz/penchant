@@ -42,7 +42,11 @@ module Penchant
     end
 
     def environment
-      File.readlines(gemfile_path).first.strip[%r{environment: (.*)}, 1]
+      File.readlines(gemfile_path).first.strip[%r{environment: ([^, ]*)}, 1]
+    end
+
+    def deployment?
+      File.readlines(gemfile_path).first['deployment mode'] != nil
     end
 
     def switch_to!(gemfile_env = nil, deployment = false)

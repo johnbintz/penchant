@@ -2,7 +2,7 @@
 
 OLD_GIT_DIR=$GIT_DIR
 
-if [ "$(penchant gemfile-env)" != "remote" ]; then
+if [ "$(penchant gemfile-env)" != "remote deployment" ]; then
   unset GIT_DIR
   penchant gemfile remote --deployment
   GIT_DIR=$OLD_GIT_DIR

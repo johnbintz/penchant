@@ -1,14 +1,14 @@
 module Penchant
   class DotPenchant
     class << self
-      def run(env = nil)
+      def run(env = nil, deployment = false)
         dot_penchant = new
         dot_penchant.run(env)
         dot_penchant
       end
     end
 
-    def run(env = nil)
+    def run(env = nil, deployment = false)
       instance_eval(File.read('.penchant'))
     end
 
@@ -22,7 +22,6 @@ module Penchant
     def gemfile?
       File.file?('Gemfile')
     end
-
   end
 end
 

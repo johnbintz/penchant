@@ -31,12 +31,39 @@ Yeah, it's a `Gemfile` with ERB in it:
 <% env :remote do %>
   gem 'guard', :git => 'git://github.com/johnbintz/guard.git'
 <% end %>
+
+<% no_deployment do %>
+  gem 'os-specific-things'
+<% end %>
 ```
 
 Use `script/gemfile local` to get at the local ones, and `script/gemfile remote` to get at the remote ones.
 It then runs `bundle install`.
 
 You can also run `penchant gemfile ENV`.
+
+### Deployment mode
+
+Use `no_deployment` blocks to indicate gems that shouldn't even appear in `Gemfiles` destined for
+remote servers. *Very* helpful when you have OS-specific gems and are developing on one platform
+and deploying on another:
+
+``` erb
+<% no_deployment do %>
+  require 'rbconfig'
+  case RbConfig::CONFIG['host_os']
+  when /darwin/
+    gem 'growl_notify'
+    gem 'growl'
+    gem 'rb-fsevent'
+  when /linux/
+    gem 'libnotify', :require => nil
+  end
+<% end %>
+```
+
+Run `penchant gemfile ENV --deployment` to get this behavior. This is run by default when the
+pre-commit git hook runs.
 
 ## initialize-environment
 

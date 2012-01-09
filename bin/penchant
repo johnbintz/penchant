@@ -29,11 +29,19 @@ class PenchantCLI < Thor
   end
 
   method_options :deployment => false
+  method_options :switch_back => false
   desc "gemfile ENV", "Switch the gemfile environment, or rebuild the current environment if not given"
   def gemfile(env = get_current_env)
     if env
-      puts "[penchant] Rebunding for #{env} environment#{options[:deployment] ? ", deployment mode" : ''}..."
-      Penchant::Gemfile.do_full_env_switch!(env, options[:deployment])
+      if options[:switch_back]
+        puts "[penchant] Switching back, fallback: #{env}..."
+
+        Penchant::Gemfile.switch_back!(env)
+      else
+        puts "[penchant] Rebunding for #{env} environment#{options[:deployment] ? ", deployment mode" : ''}..."
+
+        Penchant::Gemfile.do_full_env_switch!(env, options[:deployment])
+      end
     end
 
     gemfile = Penchant::Gemfile.new

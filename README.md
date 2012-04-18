@@ -46,7 +46,8 @@ You can also run `penchant gemfile ENV`.
 
 Use `no_deployment` blocks to indicate gems that shouldn't even appear in `Gemfiles` destined for
 remote servers. *Very* helpful when you have OS-specific gems and are developing on one platform
-and deploying on another:
+and deploying on another, or if you don't want to deal with the dependencies for your testing
+frameworks:
 
 ``` erb
 <% no_deployment do %>
@@ -59,11 +60,15 @@ and deploying on another:
   when /linux/
     gem 'libnotify', :require => nil
   end
+
+  group :test do
+    # ... all your testing libraries you won't need on the deployed end ...
+  end
 <% end %>
 ```
 
 Run `penchant gemfile ENV --deployment` to get this behavior. This is run by default when the
-pre-commit git hook runs.
+pre-commit git hook runs, but only after the default Rake task passes.
 
 ## initialize-environment
 

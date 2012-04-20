@@ -1,4 +1,7 @@
 #!/bin/bash
 
-# this has been moved to commit-msg
+unset GIT_DIR
+penchant gemfile remote --deployment
+GIT_DIR=$OLD_GIT_DIR
+git add Gemfile*
 

@@ -20,6 +20,12 @@ class PenchantCLI < Thor
     end
   end
 
+  desc "update", "Update the installed scripts"
+  method_options :dir => 'script'
+  def update
+    install
+  end
+
   desc "convert", "Make an existing project Penchant-isized"
   method_options :dir => 'script'
   def convert

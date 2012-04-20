@@ -16,7 +16,7 @@ Installs a bunch of scripts into the `scripts` directory of your project:
 
 * `gemfile` which switches between `Gemfile.erb` environments
 * `install-git-hooks` which will do just what it says
-* `hooks/pre-commit`, one of the hooks the prior script installs
+* `hooks`, several git hooks that the prior script symlinks into .git/hooks for you
 * `initialize-environment`, which bootstraps your local environment so you can get up and running
 
 ## Gemfile.erb?!
@@ -95,6 +95,12 @@ It runs `penchant gemfile remote` then runs `bundle exec rake`. Make sure your d
 tests and performs any other magic necessary before each commit. Your re-environmented Gemfile and Gemfile.lock will be added
 to your commit if they've changed.
 
+### Skipping all that Rake falderal?
+
+Do it Travis CI style: stick `[ci skip]` in your commit message. That's why the meat of hte git hooks resides in
+`commit-msg` and not `pre-commit`: you need the commit message before you can determine if the tests should be run
+based on the commit message. Weird, I know.
+
 ## How?!
 
 * `gem install penchant`
@@ -103,5 +109,6 @@ to your commit if they've changed.
 And then one of the following:
 
 * `penchant install` for a new project (`--dir=WHEREVER` will install the scripts to a directory other than `$PWD/scripts`)
+* `penchant update` to update the installation (`--dir=WHEVEVER` works here, too)
 * `penchant convert` for an existing project (`--dir=WHEVEVER` works here, too)
 

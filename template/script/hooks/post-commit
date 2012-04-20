@@ -1,4 +1,5 @@
 #!/bin/bash
 
+unset GIT_DIR
 penchant gemfile remote --switch-back
 

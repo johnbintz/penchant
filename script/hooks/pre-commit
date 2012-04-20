@@ -1,4 +1,4 @@
 #!/bin/bash
 
-# this is now handled in commit-msg, to allow for skipping of test running based on the commit message
+# this has been moved to commit-msg
 

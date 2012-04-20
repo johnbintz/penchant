@@ -21,3 +21,4 @@ if [ "$(penchant gemfile-env)" != "remote deployment" ]; then
   git add Gemfile*
 fi
 
+exit 0

@@ -10,6 +10,8 @@ describe Penchant::Gemfile do
   let(:gemfile_erb_path) { File.join(dir, 'Gemfile.erb') }
 
   def write_file(path, content = nil)
+    FileUtils.mkdir_p(File.dirname(path))
+
     File.open(path, 'wb') do |fh|
       content = yield if block_given?
       fh.print content

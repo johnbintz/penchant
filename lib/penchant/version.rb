@@ -1,3 +1,3 @@
 module Penchant
-  VERSION = "0.0.6"
+  VERSION = "0.1.1"
 end

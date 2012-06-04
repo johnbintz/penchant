@@ -1,0 +1,8 @@
+<%
+std_opts = "-r features --format #{ENV['CUCUMBER_FORMAT'] || 'pretty'} -f Cucumber::StepWriter --out features/step_definitions --strict"
+%>
+default: <%= std_opts %> features
+wip: <%= std_opts %> --tags @wip features
+precommit: FAILFAST=true <%= std_opts %> --tags ~@wip:0 features
+cleanup: <%= std_opts %> -f Cucumber::CleanupFormatter --out unused.txt features
+

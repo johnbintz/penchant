@@ -9,10 +9,13 @@ group :rspec do
   end
 end
 
-group :cucumber do
-  guard 'cucumber' do
-    watch(%r{^features/.+\.feature$})
+# added by cuke-pack
+
+group :wip do
+  guard 'cucumber', :env => :cucumber, :cli => '-p wip' do
+    watch(%r{^features/.+.feature$})
+    watch(%r{^(app|lib).*})          { 'features' }
     watch(%r{^features/support/.+$})          { 'features' }
-    watch(%r{^features/step_definitions/(.+)_steps\.rb$}) { |m| Dir[File.join("**/#{m[1]}.feature")][0] || 'features' }
+    watch(%r{^features/step_definitions/(.+).rb$}) { 'features' }
   end
 end

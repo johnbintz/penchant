@@ -13,3 +13,4 @@ gem 'rspec', '~> 2.6.0'
 gem 'rake'
 
 gem 'cucumber'
+gem 'cuke-pack', :path => '../cuke-pack'

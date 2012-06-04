@@ -61,7 +61,7 @@ module Penchant
     def switch_to!(gemfile_env = nil, deployment = false)
       @env, @is_deployment = gemfile_env, deployment
 
-      output = [ header, ERB.new(template).result(binding) ]
+      output = [ header, ERB.new(template, nil, nil, '@_erbout').result(binding) ]
 
       File.open(gemfile_path, 'wb') { |fh| fh.print output.join("\n") }
     end
@@ -97,8 +97,36 @@ module Penchant
       File.read(gemfile_erb_path)
     end
 
-    def env(check, &block)
-      instance_eval(&block) if check.to_s == @env.to_s
+    def env(check, template = {}, &block)
+      if check.to_s == @env.to_s
+        original_erbout = @_erbout.dup
+
+        output = instance_eval(&block).lines.to_a
+
+        output.each do |line|
+          if gem_name = line[%r{gem ['"]([^'"]+)['"]}, 1]
+            new_line = line.rstrip
+            template.each do |key, value|
+              new_line += ", #{key.inspect} => %{#{value % gem_name}}"
+            end
+            new_line += "\n"
+            line.replace(new_line)
+          end
+        end
+
+        @_erbout = original_erbout + output.join
+      end
+    end
+
+    def with_gem_list(*gems)
+      gems.each do |gem|
+        @_current_gem = gem
+        yield
+      end
+    end
+
+    def gem
+      "gem '#{@_current_gem}'"
     end
 
     def no_deployment(&block)

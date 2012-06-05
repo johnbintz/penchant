@@ -100,24 +100,21 @@ module Penchant
       end
 
       def gem(*args)
+        gem_name, template = split_args(args)
+
+        options = process_options(gem_name, template)
+
+        args = [ gem_name.first ]
+        args << options if !options.empty?
+
         @output << %{gem #{args_to_string(args)}}
       end
 
-      def gems(*gems)
-        template = {}
-
-        while gems.last.instance_of?(Hash)
-          template.merge!(gems.pop)
-        end
+      def gems(*args)
+        gems, template = split_args(args)
 
         gems.flatten.each do |gem_name|
-          options = Hash[
-            template.collect { |key, value|
-              value = value % gem_name if value.respond_to?(:%)
-
-              [ key, value ]
-            }.sort
-          ]
+          options = process_options(gem_name, template)
 
           args = [ gem_name ]
           args << options if !options.empty?
@@ -152,12 +149,32 @@ module Penchant
         args.inspect[1..-2]
       end
 
+      def split_args(args)
+        template = {}
+
+        while args.last.instance_of?(Hash)
+          template.merge!(args.pop)
+        end
+
+        [ args, template ]
+      end
+
       def call_and_indent_output(block)
         index = @output.length
         block.call
         index.upto(@output.length - 1) do |i|
           @output[i] = "  " + @output[i]
         end
+      end
+
+      def process_options(gem_name, template = {})
+        Hash[
+          template.collect { |key, value|
+            value = value % gem_name if value.respond_to?(:%)
+
+            [ key, value ]
+          }.sort
+        ]
       end
     end
 

@@ -49,7 +49,6 @@ Feature: Gemfiles
       gem "three", {:path=>"../three"}
       """
 
-  @wip
   Scenario: Use an env block
     Given I have the file "Gemfile.penchant" with the content:
       """

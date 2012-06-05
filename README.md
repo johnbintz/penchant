@@ -3,7 +3,7 @@
 I like to do these things in all my projects:
 
 * Have all my tests run before committing. I don't like buying ice cream for the team on test failures.
-* If I'm developing gems alongside this project, I use a `Gemfile.erb` to get around the "one gem, one source" issue in
+* If I'm developing gems alongside this project, I use a `Gemfile.penchant` to get around the "one gem, one source" issue in
   current versions of Bundler.
 * If I'm moving to different machines or (heaven forbid!) having other developers work on the project, I want to make
   getting all those local gems as easy as possible.
@@ -14,27 +14,36 @@ This gem makes that easier!
 
 Installs a bunch of scripts into the `scripts` directory of your project:
 
-* `gemfile` which switches between `Gemfile.erb` environments
+* `gemfile` which switches between `Gemfile.penchant` environments
 * `install-git-hooks` which will do just what it says
 * `hooks`, several git hooks that the prior script symlinks into .git/hooks for you
 * `initialize-environment`, which bootstraps your local environment so you can get up and running
 
-## Gemfile.erb?!
+## Gemfile.penchant?!
 
-Yeah, it's a `Gemfile` with ERB in it:
+Yeah, it's a `Gemfile` with some extras:
 
-``` erb
-<% env :local do %>
-  gem 'guard', :path => '../guard'
-<% end %>
+``` ruby
+source :rubygems
 
-<% env :remote do %>
-  gem 'guard', :git => 'git://github.com/johnbintz/guard.git'
-<% end %>
+gem 'rails', '3.2.3'
+gems 'rake', 'nokogiri', 'rack-rewrite'
 
-<% no_deployment do %>
-  gem 'os-specific-things'
-<% end %>
+no_deployment do
+  group :development, :test do
+    gem 'rspec', '~> 2.6.0'
+
+    dev_gems = %w{flowerbox guard-flowerbox}
+
+    env :local do
+      gems dev_gems, :path => '../%s'
+    end
+
+    env :remote do
+      gems dev_gems, :git => 'git://github.com/johnbintz/%s.git'
+    end
+  end
+end
 ```
 
 Use `script/gemfile local` to get at the local ones, and `script/gemfile remote` to get at the remote ones.
@@ -49,8 +58,8 @@ remote servers. *Very* helpful when you have OS-specific gems and are developing
 and deploying on another, or if you don't want to deal with the dependencies for your testing
 frameworks:
 
-``` erb
-<% no_deployment do %>
+``` ruby
+no_deployment do
   require 'rbconfig'
   case RbConfig::CONFIG['host_os']
   when /darwin/
@@ -64,7 +73,7 @@ frameworks:
   group :test do
     # ... all your testing libraries you won't need on the deployed end ...
   end
-<% end %>
+end
 ```
 
 Run `penchant gemfile ENV --deployment` to get this behavior. This is run by default when the
@@ -74,8 +83,8 @@ pre-commit git hook runs, but only after the default Rake task passes.
 
 Get new developers up to speed fast! `script/initialize-environment` does the following when run:
 
-* Check out any remote repos found in `Gemfile.erb` to the same directory where your current project lives.
-  That way, you can have your `Gemfile.erb` set up as above and everything works cleanly.
+* Check out any remote repos found in `Gemfile.penchant` to the same directory where your current project lives.
+  That way, you can have your `Gemfile.penchant` set up as above and everything works cleanly.
 * Runs `script/gemfile remote` to set your project to using remote repositories.
 * Runs `rake bootstrap` for the project if it exists.
 

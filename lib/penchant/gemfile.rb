@@ -74,19 +74,24 @@ module Penchant
       gemfile_header['deployment mode'] != nil
     end
 
-    class ERBFile
-    end
+    class FileProcessor
+      attr_reader :environment, :is_deployment
 
-    class PenchantFile
       def self.result(data, *args)
         new(data).result(*args)
+      end
+
+      def self.handle_result(&block)
+        if block
+          @handle_result = block
+        else
+          @handle_result
+        end
       end
 
       def initialize(data)
         @data = data
       end
-
-      attr_reader :environment, :is_deployment
 
       def result(_env, _is_deployment)
         @environment = _env.to_s.to_sym
@@ -94,9 +99,101 @@ module Penchant
 
         @output = []
 
-        instance_eval(@data)
+        handle_result(@data)
 
         @output.join("\n")
+      end
+
+      def env(*args)
+        yield if args.include?(environment)
+      end
+
+      def no_deployment
+        yield if !is_deployment
+      end
+
+      protected
+      def args_to_string(args)
+        args.inspect[1..-2]
+      end
+
+      def split_args(args)
+        template = {}
+
+        while args.last.instance_of?(Hash)
+          template.merge!(args.pop)
+        end
+
+        [ args, template ]
+      end
+
+      def call_and_indent_output(block)
+        index = @output.length
+        block.call
+        index.upto(@output.length - 1) do |i|
+          @output[i] = "  " + @output[i]
+        end
+      end
+
+      def process_options(gem_name, template = {})
+        Hash[
+          template.collect { |key, value|
+            value = value % gem_name if value.respond_to?(:%)
+
+            [ key, value ]
+          }.sort
+        ]
+      end
+    end
+
+    class ERBFile < FileProcessor
+      def handle_result(data)
+        @output << ERB.new(data, nil, nil, '@_erbout').result(binding)
+      end
+
+      def env(check, template = {}, &block)
+        if check.to_s == @env.to_s
+          original_erbout = @_erbout.dup
+
+          output = instance_eval(&block).lines.to_a
+
+          output.each do |line|
+            if gem_name = line[%r{gem ['"]([^'"]+)['"]}, 1]
+              line.replace(line.rstrip + process_options(gem_name, template) + "\n")
+            end
+          end
+
+          @_erbout = original_erbout + output.join
+        end
+      end
+
+      def gems(*gems)
+        template = {}
+        template = gems.pop if gems.last.instance_of?(Hash)
+
+        gems.flatten.each do |gem|
+          @_current_gem = gem
+          if block_given?
+            yield
+          else
+            @_erbout += gem(template) + "\n"
+          end
+        end
+      end
+
+      def gem(template = {})
+        output = "gem '#{@_current_gem}'" 
+        options = process_options(@_current_gem, template)
+        if !options.empty?
+          output += ", #{options.inspect}"
+        end
+        output
+      end
+    end
+
+    class PenchantFile < FileProcessor
+      def handle_result(data)
+        instance_eval(data)
       end
 
       def gem(*args)
@@ -134,47 +231,6 @@ module Penchant
 
       def source(*args)
         @output << %{source #{args_to_string(args)}}
-      end
-
-      def env(*args)
-        yield if args.include?(environment)
-      end
-
-      def no_deployment
-        yield if !is_deployment
-      end
-
-      private
-      def args_to_string(args)
-        args.inspect[1..-2]
-      end
-
-      def split_args(args)
-        template = {}
-
-        while args.last.instance_of?(Hash)
-          template.merge!(args.pop)
-        end
-
-        [ args, template ]
-      end
-
-      def call_and_indent_output(block)
-        index = @output.length
-        block.call
-        index.upto(@output.length - 1) do |i|
-          @output[i] = "  " + @output[i]
-        end
-      end
-
-      def process_options(gem_name, template = {})
-        Hash[
-          template.collect { |key, value|
-            value = value % gem_name if value.respond_to?(:%)
-
-            [ key, value ]
-          }.sort
-        ]
       end
     end
 
@@ -214,62 +270,18 @@ module Penchant
     end
 
     def process(template)
-      case File.extname(processable_gemfile_path)
+      builder = case File.extname(processable_gemfile_path)
       when '.penchant'
-        PenchantFile.result(template, @env, @is_deployment)
+        PenchantFile
       when '.erb'
-        ERB.new(template, nil, nil, '@_erbout').result(binding).lines.to_a
+        ERBFile
       end
+
+      builder.result(template, @env, @is_deployment)
     end
 
     def template
       File.read(processable_gemfile_path)
-    end
-
-    def env(check, template = {}, &block)
-      if check.to_s == @env.to_s
-        original_erbout = @_erbout.dup
-
-        output = instance_eval(&block).lines.to_a
-
-        output.each do |line|
-          if gem_name = line[%r{gem ['"]([^'"]+)['"]}, 1]
-            line.replace(line.rstrip + options_to_string(gem_name, template) + "\n")
-          end
-        end
-
-        @_erbout = original_erbout + output.join
-      end
-    end
-
-    def with_gem_list(*gems)
-      template = {}
-      template = gems.pop if gems.last.instance_of?(Hash)
-
-      gems.flatten.each do |gem|
-        @_current_gem = gem
-        if block_given?
-          yield
-        else
-          @_erbout += gem(template) + "\n"
-        end
-      end
-    end
-
-    alias :gems :with_gem_list
-
-    def gem(template = {})
-      "gem '#{@_current_gem}'" + options_to_string(@_current_gem, template)
-    end
-
-    def options_to_string(gem_name, template = {})
-      template.collect do |key, value|
-        ", #{key.inspect} => %{#{value % gem_name}}"
-      end.join
-    end
-
-    def no_deployment(&block)
-      instance_eval(&block) if !@is_deployment
     end
 
     def gemfile_header

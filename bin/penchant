@@ -30,7 +30,7 @@ class PenchantCLI < Thor
   method_options :dir => 'script'
   def convert
     install
-    FileUtils.mv 'Gemfile', 'Gemfile.erb'
+    FileUtils.mv 'Gemfile', 'Gemfile.penchant'
     gemfile(:remote)
   end
 
@@ -52,7 +52,7 @@ class PenchantCLI < Thor
 
     gemfile = Penchant::Gemfile.new
     if !gemfile.has_gemfile?
-      puts "No Gemfile or Gemfile.erb, exiting."
+      puts "No Gemfile or Gemfile.penchant, exiting."
       exit 1
     end
     system %{bundle}

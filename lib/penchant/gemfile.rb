@@ -18,7 +18,7 @@ module Penchant
 
     def self.pre_switch(env, deployment = false)
       gemfile = Penchant::Gemfile.new
-      return false if !gemfile.has_gemfile_erb?
+      return false if !gemfile.has_processable_gemfile?
       gemfile.run_dot_penchant!(env, deployment)
 
       gemfile
@@ -46,8 +46,24 @@ module Penchant
       file_in_path('Gemfile.erb')
     end
 
+    def gemfile_penchant_path
+      file_in_path('Gemfile.penchant')
+    end
+
     def has_gemfile_erb?
       File.file?(gemfile_erb_path)
+    end
+
+    def has_gemfile_penchant?
+      File.file?(gemfile_penchant_path)
+    end
+
+    def has_processable_gemfile?
+      has_gemfile_erb? || has_gemfile_penchant?
+    end
+
+    def processable_gemfile_path
+      has_gemfile_erb? ? gemfile_erb_path : gemfile_penchant_path
     end
 
     def environment
@@ -58,10 +74,97 @@ module Penchant
       gemfile_header['deployment mode'] != nil
     end
 
+    class ERBFile
+    end
+
+    class PenchantFile
+      def self.result(data, *args)
+        new(data).result(*args)
+      end
+
+      def initialize(data)
+        @data = data
+      end
+
+      attr_reader :environment, :is_deployment
+
+      def result(_env, _is_deployment)
+        @environment = _env.to_s.to_sym
+        @is_deployment = _is_deployment
+
+        @output = []
+
+        instance_eval(@data)
+
+        @output.join("\n")
+      end
+
+      def gem(*args)
+        @output << %{gem #{args_to_string(args)}}
+      end
+
+      def gems(*gems)
+        template = {}
+
+        while gems.last.instance_of?(Hash)
+          template.merge!(gems.pop)
+        end
+
+        gems.flatten.each do |gem_name|
+          options = Hash[
+            template.collect { |key, value|
+              value = value % gem_name if value.respond_to?(:%)
+
+              [ key, value ]
+            }.sort
+          ]
+
+          args = [ gem_name ]
+          args << options if !options.empty?
+
+          gem *args
+        end
+      end
+
+      def group(*args, &block)
+        @output << ""
+        @output << %{group #{args_to_string(args)} do}
+
+        call_and_indent_output(block)
+
+        @output << %{end}
+      end
+
+      def source(*args)
+        @output << %{source #{args_to_string(args)}}
+      end
+
+      def env(*args)
+        yield if args.include?(environment)
+      end
+
+      def no_deployment
+        yield if !is_deployment
+      end
+
+      private
+      def args_to_string(args)
+        args.inspect[1..-2]
+      end
+
+      def call_and_indent_output(block)
+        index = @output.length
+        block.call
+        index.upto(@output.length - 1) do |i|
+          @output[i] = "  " + @output[i]
+        end
+      end
+    end
+
     def switch_to!(gemfile_env = nil, deployment = false)
       @env, @is_deployment = gemfile_env, deployment
 
-      output = [ header, ERB.new(template, nil, nil, '@_erbout').result(binding) ]
+      output = [ header, process(template) ]
 
       File.open(gemfile_path, 'wb') { |fh| fh.print output.join("\n") }
     end
@@ -93,8 +196,17 @@ module Penchant
       File.join(@path, file)
     end
 
+    def process(template)
+      case File.extname(processable_gemfile_path)
+      when '.penchant'
+        PenchantFile.result(template, @env, @is_deployment)
+      when '.erb'
+        ERB.new(template, nil, nil, '@_erbout').result(binding).lines.to_a
+      end
+    end
+
     def template
-      File.read(gemfile_erb_path)
+      File.read(processable_gemfile_path)
     end
 
     def env(check, template = {}, &block)
@@ -105,12 +217,7 @@ module Penchant
 
         output.each do |line|
           if gem_name = line[%r{gem ['"]([^'"]+)['"]}, 1]
-            new_line = line.rstrip
-            template.each do |key, value|
-              new_line += ", #{key.inspect} => %{#{value % gem_name}}"
-            end
-            new_line += "\n"
-            line.replace(new_line)
+            line.replace(line.rstrip + options_to_string(gem_name, template) + "\n")
           end
         end
 
@@ -119,14 +226,29 @@ module Penchant
     end
 
     def with_gem_list(*gems)
-      gems.each do |gem|
+      template = {}
+      template = gems.pop if gems.last.instance_of?(Hash)
+
+      gems.flatten.each do |gem|
         @_current_gem = gem
-        yield
+        if block_given?
+          yield
+        else
+          @_erbout += gem(template) + "\n"
+        end
       end
     end
 
-    def gem
-      "gem '#{@_current_gem}'"
+    alias :gems :with_gem_list
+
+    def gem(template = {})
+      "gem '#{@_current_gem}'" + options_to_string(@_current_gem, template)
+    end
+
+    def options_to_string(gem_name, template = {})
+      template.collect do |key, value|
+        ", #{key.inspect} => %{#{value % gem_name}}"
+      end.join
     end
 
     def no_deployment(&block)

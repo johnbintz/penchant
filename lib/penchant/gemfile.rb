@@ -112,6 +112,10 @@ module Penchant
         yield if !is_deployment
       end
 
+      def os(*args)
+        yield if args.include?(current_os)
+      end
+
       protected
       def args_to_string(args)
         args.inspect[1..-2]
@@ -143,6 +147,18 @@ module Penchant
             [ key, value ]
           }.sort
         ]
+      end
+
+      def current_os
+        require 'rbconfig'
+        case host_os = RbConfig::CONFIG['host_os']
+        when /darwin/
+          :darwin
+        when /linux/
+          :linux
+        else
+          host_os[%r{^[a-z]+}, 1].to_sym
+        end
       end
     end
 

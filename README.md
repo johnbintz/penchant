@@ -42,9 +42,18 @@ no_deployment do
     env :remote do
       gems dev_gems, :git => 'git://github.com/johnbintz/%s.git'
     end
+
+    os :darwin do
+      gem 'rb-fsevent'
+    end
+
+    os :linux do
+      gems 'rb-inotify', 'ffi'
+    end
   end
 end
 ```
+
 
 Use `script/gemfile local` to get at the local ones, and `script/gemfile remote` to get at the remote ones.
 It then runs `bundle install`.

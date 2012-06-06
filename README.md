@@ -69,13 +69,11 @@ frameworks:
 
 ``` ruby
 no_deployment do
-  require 'rbconfig'
-  case RbConfig::CONFIG['host_os']
-  when /darwin/
-    gem 'growl_notify'
-    gem 'growl'
-    gem 'rb-fsevent'
-  when /linux/
+  os :darwin do
+    gems 'growl_notify', 'growl', 'rb-fsevent'
+  end
+
+  os :linux do
     gem 'libnotify', :require => nil
   end
 

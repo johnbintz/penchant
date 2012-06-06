@@ -27,6 +27,11 @@ Yeah, it's a `Gemfile` with some extras:
 source :rubygems
 
 gem 'rails', '3.2.3'
+# expands to:
+#
+# gem 'rake'
+# gem 'nokogiri'
+# gem 'rack-rewrite'
 gems 'rake', 'nokogiri', 'rack-rewrite'
 
 no_deployment do
@@ -36,24 +41,33 @@ no_deployment do
     dev_gems = %w{flowerbox guard-flowerbox}
 
     env :local do
+      # expands to:
+      #
+      # gem 'flowerbox', :path => '../flowerbox'
+      # gem 'guard-flowerbox', :path => '../guard-flowerbox'
       gems dev_gems, :path => '../%s'
     end
 
     env :remote do
+      # expands to:
+      #
+      # gem 'flowerbox', :git => 'git://github.com/johnbintz/flowerbox.git'
+      # gem 'guard-flowerbox', :git => 'git://github.com/johnbintz/guard-flowerbox.git'
       gems dev_gems, :git => 'git://github.com/johnbintz/%s.git'
     end
 
+    # only expanded on Mac OS X
     os :darwin do
       gem 'rb-fsevent'
     end
 
+    # only expanded on Linux
     os :linux do
       gems 'rb-inotify', 'ffi'
     end
   end
 end
 ```
-
 
 Use `script/gemfile local` to get at the local ones, and `script/gemfile remote` to get at the remote ones.
 It then runs `bundle install`.

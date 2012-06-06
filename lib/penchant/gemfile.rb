@@ -223,6 +223,10 @@ module Penchant
         @output << %{gem #{args_to_string(args)}}
       end
 
+      def gemspec
+        @output << %{gemspec}
+      end
+
       def gems(*args)
         gems, template = split_args(args)
 

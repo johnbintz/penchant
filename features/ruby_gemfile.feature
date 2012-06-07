@@ -157,3 +157,30 @@ Feature: Gemfiles
 
       """
 
+  Scenario: Get the list of environments defined
+    Given I have the file "Gemfile.penchant" with the content:
+      """
+      env :cat do
+        gem 'one', :path => '../%s'
+      end
+
+      env :dog do
+        gem 'two', :path => '../%s'
+      end
+      """
+    When I request the list of environments available
+    Then I should get the following environments:
+      | cat |
+      | dog |
+
+  @wip
+  Scenario: Get the list of git repos defined
+    Given I have the file "Gemfile.penchant" with the content:
+      """
+      gem 'one', :path => '../%s'
+      gem 'two', :git => 'git://github.cats/%s.git'
+      """
+    When I request the list of git repositories
+    Then I should get the following repositories:
+      | git://github.cats/two.git |
+

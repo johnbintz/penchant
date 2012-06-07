@@ -63,6 +63,22 @@ class PenchantCLI < Thor
     puts get_current_env
   end
 
+  desc "bootstrap [DIR = ..]", "Download all referred-to git repos to the specified directory"
+  def bootstrap(dir = '..')
+    Penchant::Gemfile.defined_git_repos.each do |repo|
+      puts "Cloning #{repo} to #{dir}."
+      repo.clone_to(dir)
+    end
+  end
+
+  def method_missing(method, *args)
+    if Penchant::Gemfile.available_environments.include?(method)
+      gemfile(method, *args)
+    else
+      super(method, *args)
+    end
+  end
+
   no_tasks do
     def get_current_env
       gemfile = Penchant::Gemfile.new

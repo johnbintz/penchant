@@ -150,7 +150,7 @@ ERB
   end
 
   describe '#switch_to!' do
-    let(:template) { 'template' }
+    let(:template) { 'source' }
     let(:gemfile_path) { 'gemfile path' }
     let(:header) { 'header' }
 

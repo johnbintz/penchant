@@ -17,17 +17,26 @@ module Penchant
     end
 
     def self.pre_switch(env, deployment = false)
-      gemfile = Penchant::Gemfile.new
+      gemfile = new
       return false if !gemfile.has_processable_gemfile?
       gemfile.run_dot_penchant!(env, deployment)
 
       gemfile
     end
 
+    def self.available_environments
+      new.available_environments
+    end
+
+    def self.defined_git_repos
+      new.defined_git_repos
+    end
+
     def current_env ; @env ; end
 
     def initialize(path = Dir.pwd)
       @path = path
+      @env = environment
     end
 
     def gemfile_path
@@ -75,7 +84,7 @@ module Penchant
     end
 
     class FileProcessor
-      attr_reader :environment, :is_deployment
+      attr_reader :environment, :is_deployment, :available_environments, :defined_git_repos
 
       def self.result(data, *args)
         new(data).result(*args)
@@ -91,6 +100,8 @@ module Penchant
 
       def initialize(data)
         @data = data
+        @available_environments = []
+        @defined_git_repos = []
       end
 
       def result(_env, _is_deployment)
@@ -105,6 +116,8 @@ module Penchant
       end
 
       def env(*args)
+        @available_environments += args
+
         yield if args.include?(environment)
       end
 
@@ -220,6 +233,10 @@ module Penchant
         args = [ gem_name.first ]
         args << options if !options.empty?
 
+        if options[:git]
+          @defined_git_repos << Penchant::Repo.new(options[:git])
+        end
+
         @output << %{gem #{args_to_string(args)}}
       end
 
@@ -254,10 +271,20 @@ module Penchant
       end
     end
 
+    def available_environments
+      process
+      builder.available_environments
+    end
+
+    def defined_git_repos
+      process
+      builder.defined_git_repos
+    end
+
     def switch_to!(gemfile_env = nil, deployment = false)
       @env, @is_deployment = gemfile_env, deployment
 
-      output = [ header, process(template) ]
+      output = [ header, process ]
 
       File.open(gemfile_path, 'wb') { |fh| fh.print output.join("\n") }
     end
@@ -289,15 +316,21 @@ module Penchant
       File.join(@path, file)
     end
 
-    def process(template)
-      builder = case File.extname(processable_gemfile_path)
+    def process
+      builder.result(@env, @is_deployment)
+    end
+
+    def builder
+      return @builder if @builder
+
+      klass = case File.extname(processable_gemfile_path)
       when '.penchant'
         PenchantFile
       when '.erb'
         ERBFile
       end
 
-      builder.result(template, @env, @is_deployment)
+      @builder = klass.new(template)
     end
 
     def template

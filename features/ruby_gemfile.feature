@@ -173,7 +173,6 @@ Feature: Gemfiles
       | cat |
       | dog |
 
-  @wip
   Scenario: Get the list of git repos defined
     Given I have the file "Gemfile.penchant" with the content:
       """

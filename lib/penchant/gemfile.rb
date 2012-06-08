@@ -181,14 +181,20 @@ module Penchant
       end
 
       def env(check, template = {}, &block)
-        if check.to_s == @env.to_s
+        if check.to_s == @environment.to_s
           original_erbout = @_erbout.dup
 
           output = instance_eval(&block).lines.to_a
 
           output.each do |line|
             if gem_name = line[%r{gem ['"]([^'"]+)['"]}, 1]
-              line.replace(line.rstrip + process_options(gem_name, template) + "\n")
+              new_line = line.rstrip
+
+              if !(options = process_options(gem_name, template)).empty?
+                new_line += ", #{options.inspect}"
+              end
+
+              line.replace(new_line + "\n")
             end
           end
 

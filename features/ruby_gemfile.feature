@@ -1,6 +1,5 @@
 @fakefs
 Feature: Gemfiles
-  @wip
   Scenario: Process a pure Ruby gemfile
     Given I have the file "Gemfile.penchant" with the content:
       """

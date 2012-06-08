@@ -183,6 +183,7 @@ module Penchant
       def env(check, template = {}, &block)
         if check.to_s == @environment.to_s
           original_erbout = @_erbout.dup
+          @_erbout = ''
 
           output = instance_eval(&block).lines.to_a
 

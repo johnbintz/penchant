@@ -233,11 +233,19 @@ module Penchant
       end
 
       def gem(*args)
-        gem_name, template = split_args(args)
+        gem_name = [ args.shift ]
+        template = {}
+
+        if args.last.kind_of?(::Hash)
+          template = args.pop
+        end
+
+        version = args.first
 
         options = process_options(gem_name, template)
 
         args = [ gem_name.first ]
+        args << version if version
         args << options if !options.empty?
 
         if options[:git]

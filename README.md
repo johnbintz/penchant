@@ -40,19 +40,22 @@ no_deployment do
 
     dev_gems = %w{flowerbox guard-flowerbox}
 
+    # set up defaults for certain gems that are probably being used in envs
+    defaults_for dev_gems, :require => nil
+
     env :local do
       # expands to:
       #
-      # gem 'flowerbox', :path => '../flowerbox'
-      # gem 'guard-flowerbox', :path => '../guard-flowerbox'
+      # gem 'flowerbox', :path => '../flowerbox', :require => nil
+      # gem 'guard-flowerbox', :path => '../guard-flowerbox', :require => nil
       gems dev_gems, :path => '../%s'
     end
 
     env :remote do
       # expands to:
       #
-      # gem 'flowerbox', :git => 'git://github.com/johnbintz/flowerbox.git'
-      # gem 'guard-flowerbox', :git => 'git://github.com/johnbintz/guard-flowerbox.git'
+      # gem 'flowerbox', :git => 'git://github.com/johnbintz/flowerbox.git', :require => nil
+      # gem 'guard-flowerbox', :git => 'git://github.com/johnbintz/guard-flowerbox.git', :require => nil
       gems dev_gems, :git => 'git://github.com/johnbintz/%s.git'
     end
 

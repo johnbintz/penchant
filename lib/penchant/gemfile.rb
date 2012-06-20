@@ -102,6 +102,7 @@ module Penchant
         @data = data
         @available_environments = []
         @defined_git_repos = []
+        @defaults = {}
       end
 
       def result(_env, _is_deployment)
@@ -129,6 +130,12 @@ module Penchant
         yield if args.include?(current_os)
       end
 
+      def defaults_for(*args)
+        defaults = args.pop
+
+        args.flatten.each { |gem| @defaults[gem.to_s] = defaults.dup }
+      end
+
       protected
       def args_to_string(args)
         args.inspect[1..-2]
@@ -154,12 +161,16 @@ module Penchant
 
       def process_options(gem_name, template = {})
         Hash[
-          template.collect { |key, value|
+          template.merge(_defaults_for(gem_name)).collect { |key, value|
             value = value % gem_name if value.respond_to?(:%)
 
             [ key, value ]
           }.sort
         ]
+      end
+
+      def _defaults_for(gem_name)
+        @defaults[gem_name.to_s] || {}
       end
 
       def current_os
@@ -242,7 +253,7 @@ module Penchant
 
         version = args.first
 
-        options = process_options(gem_name, template)
+        options = process_options(gem_name.first, template)
 
         args = [ gem_name.first ]
         args << version if version

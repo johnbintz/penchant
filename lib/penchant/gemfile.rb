@@ -83,6 +83,22 @@ module Penchant
       gemfile_header['deployment mode'] != nil
     end
 
+    class Env
+      attr_accessor :name
+
+      def initialize(name)
+        @name = name.to_s
+      end
+
+      def ==(other)
+        @name == other.name
+      end
+
+      def to_s
+        "@#{name}"
+      end
+    end
+
     class FileProcessor
       attr_reader :environment, :is_deployment, :available_environments, :defined_git_repos
 
@@ -103,6 +119,8 @@ module Penchant
         @available_environments = []
         @defined_git_repos = []
         @defaults = {}
+
+        @_current_env_defaults = {}
       end
 
       def result(_env, _is_deployment)
@@ -119,7 +137,15 @@ module Penchant
       def env(*args)
         @available_environments += args
 
-        yield if args.include?(environment)
+        if block_given?
+          if args.include?(environment)
+            @_current_env_defaults = _defaults_for(Env.new(environment))
+            yield
+            @_current_env_defaults = {}
+          end
+        else
+          Penchant::Gemfile::Env.new(args.shift)
+        end
       end
 
       def no_deployment
@@ -170,7 +196,8 @@ module Penchant
       end
 
       def _defaults_for(gem_name)
-        @defaults[gem_name.to_s] || {}
+        result = @_current_env_defaults
+        result.merge(@defaults[gem_name.to_s] || {})
       end
 
       def current_os

@@ -7,10 +7,6 @@ gem 'guard'
 gem 'guard-rspec'
 gem 'guard-cucumber'
 
-gem 'mocha'
-gem 'fakefs'
-gem 'rspec', '~> 2.6.0'
-gem 'rake'
-
-gem 'cucumber'
-gem 'cuke-pack', :path => '../cuke-pack'
+# see, *this* is why you need penchant
+#gem 'cuke-pack', :path => '../cuke-pack'
+gem 'cuke-pack', :git => 'git://github.com/johnbintz/cuke-pack.git'

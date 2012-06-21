@@ -166,7 +166,8 @@ based on the commit message. Weird, I know.
 
 ## How?!
 
-* `gem install penchant`
+* No RVM? `gem install penchant`
+* RVM? `rvm gemset use global && gem install penchant && rvm gemset use default`
 * `cd` to your project directory
 
 And then one of the following:

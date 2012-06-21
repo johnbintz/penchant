@@ -20,4 +20,11 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency 'bundler'
+  s.add_dependency 'thor'
+
+  s.add_development_dependency 'cucumber'
+  s.add_development_dependency 'mocha'
+  s.add_development_dependency 'fakefs'
+  s.add_development_dependency 'rspec', '~> 2.6.0'
+  s.add_development_dependency 'rake'
 end

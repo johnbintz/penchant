@@ -182,6 +182,18 @@ Feature: Gemfiles
     Then I should get the following repositories:
       | git://github.cats/two.git |
 
+  Scenario: Get the list of git repos defined, regardless of environment
+    Given I have the file "Gemfile.penchant" with the content:
+      """
+      gem 'one', :path => '../%s'
+      env :remote do
+        gem 'two', :git => 'git://github.cats/%s.git'
+      end
+      """
+    When I request the list of git repositories
+    Then I should get the following repositories:
+      | git://github.cats/two.git |
+
   Scenario: Propose defaults for a gem
     Given I have the file "Gemfile.penchant" with the content:
       """

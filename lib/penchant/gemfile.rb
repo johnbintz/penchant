@@ -102,6 +102,8 @@ module Penchant
     class FileProcessor
       attr_reader :environment, :is_deployment, :available_environments, :defined_git_repos
 
+      ANY_ENVIRONMENT = :any_environment
+
       def self.result(data, *args)
         new(data).result(*args)
       end
@@ -138,7 +140,7 @@ module Penchant
         @available_environments += args
 
         if block_given?
-          if args.include?(environment)
+          if for_environment?(args)
             @_current_env_defaults = _defaults_for(Env.new(environment))
             yield
             @_current_env_defaults = {}
@@ -146,6 +148,10 @@ module Penchant
         else
           Penchant::Gemfile::Env.new(args.shift)
         end
+      end
+
+      def for_environment?(envs)
+        envs.include?(environment) || environment == ANY_ENVIRONMENT
       end
 
       def no_deployment
@@ -330,7 +336,7 @@ module Penchant
     end
 
     def defined_git_repos
-      process
+      process(FileProcessor::ANY_ENVIRONMENT)
       builder.defined_git_repos
     end
 
@@ -369,8 +375,8 @@ module Penchant
       File.join(@path, file)
     end
 
-    def process
-      builder.result(@env, @is_deployment)
+    def process(env = @env)
+      builder.result(env, @is_deployment)
     end
 
     def builder

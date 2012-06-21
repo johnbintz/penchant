@@ -5,6 +5,7 @@ I like to do these things in all my projects:
 * Have all my tests run before committing. I don't like buying ice cream for the team on test failures.
 * If I'm developing gems alongside this project, I use a `Gemfile.penchant` to get around the "one gem, one source" issue in
   current versions of Bundler.
+* I can also factor out and simplify a lot of my Gemfile settings.
 * If I'm moving to different machines or (heaven forbid!) having other developers work on the project, I want to make
   getting all those local gems as easy as possible.
 
@@ -24,6 +25,7 @@ Installs a bunch of scripts into the `scripts` directory of your project:
 Yeah, it's a `Gemfile` with some extras:
 
 ``` ruby
+# Gemfile.penchant
 source :rubygems
 
 gem 'rails', '3.2.3'
@@ -48,7 +50,7 @@ no_deployment do
       #
       # gem 'flowerbox', :path => '../flowerbox', :require => nil
       # gem 'guard-flowerbox', :path => '../guard-flowerbox', :require => nil
-      gems dev_gems, :path => '../%s'
+      gems dev_gems, :path => '../%s' # the %s is the name of the gem
     end
 
     env :remote do
@@ -103,6 +105,29 @@ end
 Run `penchant gemfile ENV --deployment` to get this behavior. This is run by default when the
 pre-commit git hook runs, but only after the default Rake task passes.
 
+#### Won't this change the project dependencies?!
+
+Probably not. You probably have the "main" gems in your project locked to a version of Rails or
+Sinatra or something else, and all of the other gems for authentication, queue processing, etc. are
+dependent on that framework. Ripping out your testing framework and deployment helpers really
+shouldn't be changing the main versions of your application gems. It WORKSFORME and YMMV.
+
+### Getting local gems all set up
+
+`penchant bootstrap` will go through and find all git repo references in your `Gemfile.penchant` and
+will download them to the specified directory (by default, '..'). This means blocks like this
+will work as expected when you `penchant bootstrap` and then `penchant gemfile local`:
+
+``` ruby
+env :local do
+  gem 'my-gem', :path => '../%s'
+end
+
+env :remote do
+  gem 'my-gem', :git => 'git://github.com/johnbintz/%s.git'
+end
+```
+
 ## initialize-environment
 
 Get new developers up to speed fast! `script/initialize-environment` does the following when run:
@@ -135,7 +160,7 @@ to your commit if they've changed.
 
 ### Skipping all that Rake falderal?
 
-Do it Travis CI style: stick `[ci skip]` in your commit message. That's why the meat of hte git hooks resides in
+Do it Travis CI style: stick `[ci skip]` in your commit message. That's why the meat of the git hooks resides in
 `commit-msg` and not `pre-commit`: you need the commit message before you can determine if the tests should be run
 based on the commit message. Weird, I know.
 

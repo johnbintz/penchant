@@ -193,7 +193,7 @@ module Penchant
 
       def process_options(gem_name, template = {})
         Hash[
-          template.merge(_defaults_for(gem_name)).collect { |key, value|
+          _defaults_for(gem_name).dup.merge(template).collect { |key, value|
             value = value % gem_name if value.respond_to?(:%)
 
             [ key, value ]

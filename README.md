@@ -2,7 +2,8 @@
 
 I like to do these things in all my projects:
 
-* Have all my tests run before committing. I don't like buying ice cream for the team on test failures.
+* Have all my tests run before committing. I don't like buying ice cream for the team on test failures, and setting up internal 
+  CI for smaller projects is a pain.
 * If I'm developing gems alongside this project, I use a `Gemfile.penchant` to get around the "one gem, one source" issue in
   current versions of Bundler.
 * I can also factor out and simplify a lot of my Gemfile settings.
@@ -45,12 +46,15 @@ no_deployment do
     # set up defaults for certain gems that are probably being used in envs
     defaults_for dev_gems, :require => nil
 
+    # set up defaults for all gems in a particular environment
+    defaults_for env(:local), :path => '../%s' # the %s is the name of the gem
+
     env :local do
       # expands to:
       #
       # gem 'flowerbox', :path => '../flowerbox', :require => nil
       # gem 'guard-flowerbox', :path => '../guard-flowerbox', :require => nil
-      gems dev_gems, :path => '../%s' # the %s is the name of the gem
+      gems dev_gems
     end
 
     env :remote do
@@ -77,7 +81,8 @@ end
 Use `script/gemfile local` to get at the local ones, and `script/gemfile remote` to get at the remote ones.
 It then runs `bundle install`.
 
-You can also run `penchant gemfile ENV`.
+You can also run `penchant gemfile ENV`. Just straight `penchant gemfile` will rebuild the `Gemfile` from
+`Gemfile.penchant` for whatever environment the `Gemfile` is currently using.
 
 ### Deployment mode
 
@@ -87,6 +92,8 @@ and deploying on another, or if you don't want to deal with the dependencies for
 frameworks:
 
 ``` ruby
+gem 'rails'
+
 no_deployment do
   os :darwin do
     gems 'growl_notify', 'growl', 'rb-fsevent'
@@ -127,6 +134,9 @@ env :remote do
   gem 'my-gem', :git => 'git://github.com/johnbintz/%s.git'
 end
 ```
+
+Note that this just does a quick `git clone`, so if your project is already in there in a different state,
+nothing "happens" except that git fails.
 
 ## initialize-environment
 

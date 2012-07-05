@@ -121,6 +121,7 @@ module Penchant
         @available_environments = []
         @defined_git_repos = []
         @defaults = {}
+        @properties = {}
 
         @_current_env_defaults = {}
       end
@@ -148,6 +149,10 @@ module Penchant
         else
           Penchant::Gemfile::Env.new(args.shift)
         end
+      end
+
+      def property(name, &block)
+        @properties[name] = block
       end
 
       def for_environment?(envs)
@@ -192,13 +197,25 @@ module Penchant
       end
 
       def process_options(gem_name, template = {})
-        Hash[
-          _defaults_for(gem_name).dup.merge(template).collect { |key, value|
+        properties = {}
+
+        property_stack = _defaults_for(gem_name).dup.merge(template).to_a
+
+        while !property_stack.empty?
+          key, value = property_stack.shift
+
+          if @properties[key]
+            @properties[key].call(*([ value ].flatten)).each do |k, v|
+              property_stack.push([ k, v ])
+            end
+          else
             value = value % gem_name if value.respond_to?(:%)
 
-            [ key, value ]
-          }.sort
-        ]
+            properties[key] = value
+          end
+        end
+
+        Hash[properties.sort]
       end
 
       def _defaults_for(gem_name)

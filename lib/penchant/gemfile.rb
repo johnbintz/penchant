@@ -151,8 +151,8 @@ module Penchant
         end
       end
 
-      def property(name, &block)
-        @properties[name] = block
+      def property(name, hash = nil, &block)
+        @properties[name] = hash || block
       end
 
       def for_environment?(envs)
@@ -204,9 +204,18 @@ module Penchant
         while !property_stack.empty?
           key, value = property_stack.shift
 
-          if @properties[key]
-            @properties[key].call(*([ value ].flatten)).each do |k, v|
-              property_stack.push([ k, v ])
+          if property = @properties[key]
+            values = [ value ].flatten
+
+            if property.respond_to?(:call)
+              property.call(*values).each do |k, v|
+                property_stack.push([ k, v ])
+              end
+            else
+              property.each do |k, v|
+                v = v.dup.gsub(%r{\$(\d+)}) { |m| values[m.to_i - 1 ] }
+                property_stack.push([ k, v ])
+              end
             end
           else
             value = value % gem_name if value.respond_to?(:%)
@@ -238,6 +247,8 @@ module Penchant
 
     class ERBFile < FileProcessor
       def handle_result(data)
+        $stderr.puts "ERB files are deprecated. Please convert them to the Ruby format."
+
         @output << ERB.new(data, nil, nil, '@_erbout').result(binding)
       end
 

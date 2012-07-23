@@ -16,3 +16,15 @@ Feature: CLI
       """
       And the output should include "fallback: other"
 
+  Scenario: Try to convert a project, ignoring git hooks
+    Given I have the file "tmp/Gemfile" with the content:
+      """
+      source :rubygems
+      """
+    When I run "bin/penchant convert" in the "tmp" directory
+    Then the file "tmp/Gemfile.penchant" should have the following content:
+      """
+      source :rubygems
+      """
+      And the output should include "No git"
+    

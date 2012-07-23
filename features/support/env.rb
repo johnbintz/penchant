@@ -2,7 +2,7 @@ require 'fakefs/safe'
 require 'penchant'
 require 'mocha'
 
-World(Mocha::Standalone)
+World(Mocha::API)
 
 Before('@fakefs') do
   FakeFS.activate!

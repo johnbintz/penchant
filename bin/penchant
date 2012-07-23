@@ -9,25 +9,32 @@ class PenchantCLI < Thor
   include Thor::Actions
   source_root File.expand_path('../..', __FILE__)
 
+  SCRIPT_DIR = 'script'
+  CLONE_DIR = '..'
+
   desc "install", "Copy the common scripts to the project"
-  method_options :dir => 'script'
+  method_options :dir => SCRIPT_DIR
   def install
     directory 'template/script', options[:dir]
     Dir[File.join(options[:dir], '**/*')].each { |file| File.chmod(0755, file) }
 
-    Dir['script/hooks/*'].each do |hook|
-      FileUtils.ln_sf File.join(Dir.pwd, hook), ".git/hooks/#{File.split(hook).last}"
+    if File.directory?('.git')
+      Dir['script/hooks/*'].each do |hook|
+        FileUtils.ln_sf File.join(Dir.pwd, hook), ".git/hooks/#{File.split(hook).last}"
+      end
+    else
+      puts "No git repository detected here. Skipping git hook installation..."
     end
   end
 
   desc "update", "Update the installed scripts"
-  method_options :dir => 'script'
+  method_options :dir => SCRIPT_DIR
   def update
     install
   end
 
   desc "convert", "Make an existing project Penchant-isized"
-  method_options :dir => 'script'
+  method_options :dir => SCRIPT_DIR
   def convert
     install
     FileUtils.mv 'Gemfile', 'Gemfile.penchant'
@@ -63,10 +70,10 @@ class PenchantCLI < Thor
     puts get_current_env
   end
 
-  desc "bootstrap [DIR = ..]", "Download all referred-to git repos to the specified directory"
-  def bootstrap(dir = '..')
+  desc "bootstrap [DIR = #{CLONE_DIR}]", "Download all referred-to git repos to the specified directory"
+  def bootstrap(dir = CLONE_DIR)
     Penchant::Gemfile.defined_git_repos.each do |repo|
-      puts "Cloning #{repo} to #{dir}."
+      puts "Cloning #{repo} to #{dir}"
       repo.clone_to(dir)
     end
   end

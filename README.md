@@ -37,6 +37,14 @@ gem 'rails', '3.2.3'
 # gem 'rack-rewrite'
 gems 'rake', 'nokogiri', 'rack-rewrite'
 
+# define custom gem properties that get expanded to ones bundler understands
+property :github, :git => 'git://github.com/$1/%s.git'
+  # values to the key are [ value ].flatten-ed and the $s are replaced on the fly,
+  # with $1 being the first parameter given
+
+# set up defaults for all gems in a particular environment
+defaults_for env(:local), :path => '../%s' # the %s is the name of the gem
+
 no_deployment do
   group :development, :test do
     gem 'rspec', '~> 2.6.0'
@@ -45,9 +53,6 @@ no_deployment do
 
     # set up defaults for certain gems that are probably being used in envs
     defaults_for dev_gems, :require => nil
-
-    # set up defaults for all gems in a particular environment
-    defaults_for env(:local), :path => '../%s' # the %s is the name of the gem
 
     env :local do
       # expands to:
@@ -62,7 +67,7 @@ no_deployment do
       #
       # gem 'flowerbox', :git => 'git://github.com/johnbintz/flowerbox.git', :require => nil
       # gem 'guard-flowerbox', :git => 'git://github.com/johnbintz/guard-flowerbox.git', :require => nil
-      gems dev_gems, :git => 'git://github.com/johnbintz/%s.git'
+      gems dev_gems, :github => 'johnbintz'
     end
 
     # only expanded on Mac OS X
@@ -122,7 +127,7 @@ shouldn't be changing the main versions of your application gems. It WORKSFORME 
 ### Getting local gems all set up
 
 `penchant bootstrap` will go through and find all git repo references in your `Gemfile.penchant` and
-will download them to the specified directory (by default, '..'). This means blocks like this
+will download them to the specified directory (by default, `..`). This means blocks like this
 will work as expected when you `penchant bootstrap` and then `penchant gemfile local`:
 
 ``` ruby

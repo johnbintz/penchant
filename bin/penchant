@@ -45,6 +45,8 @@ class PenchantCLI < Thor
   method_options :switch_back => false
   desc "gemfile ENV", "Switch the gemfile environment, or rebuild the current environment if not given"
   def gemfile(env = get_current_env)
+    check_git_hooks!
+
     if env
       if options[:switch_back]
         puts "[penchant] Switching back, fallback: #{env}..."
@@ -93,9 +95,17 @@ class PenchantCLI < Thor
       out << "deployment" if gemfile.deployment?
       out.join(' ')
     end
+
+    def check_git_hooks!
+      if !Penchant::Hooks.installed?
+        puts "[penchant] git hooks not installed. Run script/install-git-hooks."
+        puts
+      end
+    end
   end
 
   default_task :gemfile
 end
 
 PenchantCLI.start
+

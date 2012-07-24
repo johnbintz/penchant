@@ -2,14 +2,13 @@
 
 msg=$(cat $1)
 
-OLD_GIT_DIR=$GIT_DIR
+# wtf mac os x lion
+if [ ! -z "$MY_RUBY_HOME" ]; then
+  PATH="$MY_RUBY_HOME/bin:$PATH"
+fi
 
 if [[ "${msg}" != *"[ci skip]"* ]]; then
-  if [ "$(penchant gemfile-env)" != "remote" ]; then
-    penchant gemfile remote
-  fi
-
-  bundle exec rake
+  bundle exec rake --trace
   R=$?
   if [ $R -ne 0 ]; then exit $R; fi
 fi

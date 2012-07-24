@@ -27,4 +27,30 @@ Feature: CLI
       source :rubygems
       """
       And the output should include "No git"
-    
+
+  @wip
+  Scenario: Run in a project where the git hooks are not set up
+    Given I have the file "tmp/Gemfile.penchant" with the content:
+      """
+      gem 'rake'
+      """
+    Given I have the file "tmp/script/hooks/pre-commit" with the content:
+      """
+      a penchant hook
+      """
+    When I run "bin/penchant gemfile remote" in the "tmp" directory
+    Then the output should include "git hooks not installed"
+
+  @wip
+  Scenario: Run in a project where git hooks are set up
+    Given I have the file "tmp/Gemfile.penchant" with the content:
+      """
+      gem 'rake'
+      """
+    Given I have the file "tmp/script/hooks/pre-commit" with the content:
+      """
+      a penchant hook
+      """
+    Given I have the symlink "tmp/.git/hooks/pre-commit" which points to "tmp/script/hooks/pre-commit"
+    When I run "bin/penchant gemfile remote" in the "tmp" directory
+    Then the output should not include "git hooks not installed"

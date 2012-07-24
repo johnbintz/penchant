@@ -4,6 +4,24 @@ msg=$(cat $1)
 
 OLD_GIT_DIR=$GIT_DIR
 
+# lion appears to insert git paths before everything else. ensure rvm can
+# bust through, at the very least.
+if [ ! -z "$MY_RUBY_HOME" ]; then
+  PATH="$MY_RUBY_HOME/bin:$PATH"
+fi
+
+if [ ! -z "$GEM_PATH" ]; then
+  oifs="$IFS"
+  while IFS=":" read -ra GEM_PATHS; do
+    FIXED_GEM_PATH=""
+    for i in "${GEM_PATHS[@]}"; do
+      FIXED_GEM_PATH="$FIXED_GEM_PATH:${i}/bin"
+    done
+  done <<< "$GEM_PATH"
+  IFS="$oifs"
+  PATH="$FIXED_GEM_PATH:$PATH"
+fi
+
 if [[ "${msg}" != *"[ci skip]"* ]]; then
   if [ "$(penchant gemfile-env)" != "remote" ]; then
     unset GIT_DIR

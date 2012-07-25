@@ -29,6 +29,9 @@ Yeah, it's a `Gemfile` with some extras:
 # Gemfile.penchant
 source :rubygems
 
+# ensure git hooks are installed when a gemfile is processed, see below
+ensure_git_hooks!
+
 gem 'rails', '3.2.3'
 # expands to:
 #
@@ -172,6 +175,13 @@ rake "hydra:sync hydra:remote:bundle"
 It runs `penchant gemfile remote` then runs `bundle exec rake`. Make sure your default Rake task for the project runs your
 tests and performs any other magic necessary before each commit. Your re-environmented Gemfile and Gemfile.lock will be added
 to your commit if they've changed.
+
+### Ensuring git hooks get installed
+
+I find that when I pull down new projects I never remember to install the git hooks, which involves an awkward running
+of `bundle exec rake` *after* I've already committed code. Since we have computers now, and they can be told to do things,
+you can add `ensure_git_hooks!` anywhere in your `Gemfile.penchant` to make sure the git hooks are symlinked to the ones
+in the `script/hooks` directory with every processing of `Gemfile.penchant`.
 
 ### Skipping all that Rake falderal?
 

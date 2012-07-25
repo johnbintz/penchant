@@ -163,6 +163,10 @@ module Penchant
         yield if !is_deployment
       end
 
+      def ensure_git_hooks!
+        Penchant::Hooks.install!
+      end
+
       def os(*args)
         yield if args.include?(current_os)
       end

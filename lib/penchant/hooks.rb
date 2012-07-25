@@ -16,6 +16,14 @@ module Penchant
         true
       end
     end
+
+    def self.install!
+      puts "[penchant] installing git hooks"
+
+      Dir['script/hooks/*'].each do |hook|
+        FileUtils.ln_sf File.join(Dir.pwd, hook), ".git/hooks/#{File.split(hook).last}"
+      end
+    end
   end
 end
 

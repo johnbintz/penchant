@@ -28,7 +28,6 @@ Feature: CLI
       """
       And the output should include "No git"
 
-  @wip
   Scenario: Run in a project where the git hooks are not set up
     Given I have the file "tmp/Gemfile.penchant" with the content:
       """
@@ -41,7 +40,6 @@ Feature: CLI
     When I run "bin/penchant gemfile remote" in the "tmp" directory
     Then the output should include "git hooks not installed"
 
-  @wip
   Scenario: Run in a project where git hooks are set up
     Given I have the file "tmp/Gemfile.penchant" with the content:
       """

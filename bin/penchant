@@ -19,9 +19,7 @@ class PenchantCLI < Thor
     Dir[File.join(options[:dir], '**/*')].each { |file| File.chmod(0755, file) }
 
     if File.directory?('.git')
-      Dir['script/hooks/*'].each do |hook|
-        FileUtils.ln_sf File.join(Dir.pwd, hook), ".git/hooks/#{File.split(hook).last}"
-      end
+      Penchant::Hooks.install!
     else
       puts "No git repository detected here. Skipping git hook installation..."
     end

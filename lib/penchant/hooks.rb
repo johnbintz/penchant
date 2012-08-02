@@ -14,6 +14,9 @@ module Penchant
         end
 
         true
+      else
+        # no script/hooks dir, so we must not want them
+        true
       end
     end
 

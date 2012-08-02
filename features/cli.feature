@@ -40,6 +40,15 @@ Feature: CLI
     When I run "bin/penchant gemfile remote" in the "tmp" directory
     Then the output should include "git hooks not installed"
 
+  Scenario: Run in a project where there are no git hooks, but there is a git repo
+    Given I have the file "tmp/Gemfile.penchant" with the content:
+      """
+      gem 'rake'
+      """
+    Given I have the directory "tmp/.git"
+    When I run "bin/penchant gemfile remote" in the "tmp" directory
+    Then the output should not include "git hooks not installed"
+
   Scenario: Run in a project where git hooks are set up
     Given I have the file "tmp/Gemfile.penchant" with the content:
       """

@@ -41,6 +41,7 @@ class PenchantCLI < Thor
 
   method_options :deployment => false
   method_options :switch_back => false
+  method_options :no_auto_update => false
   desc "gemfile ENV", "Switch the gemfile environment, or rebuild the current environment if not given"
   def gemfile(env = get_current_env)
     check_git_hooks!
@@ -62,7 +63,13 @@ class PenchantCLI < Thor
       puts "No Gemfile or Gemfile.penchant, exiting."
       exit 1
     end
+
     system %{bundle}
+
+    # it's asking for bundle update, we know what we're doing
+    if $?.exitstatus == 6 and !options[:no_auto_update]
+      system %{bundle update}
+    end
   end
 
   desc "gemfile-env", "Get the gemfile environment"

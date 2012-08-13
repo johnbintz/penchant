@@ -92,6 +92,12 @@ It then runs `bundle install`.
 You can also run `penchant gemfile ENV`. Just straight `penchant gemfile` will rebuild the `Gemfile` from
 `Gemfile.penchant` for whatever environment the `Gemfile` is currently using.
 
+If you have an existing project, `penchant convert` will convert the `Gemfile` into a `Gemfile.penchant`
+and add some bonuses, like defining that anything in `env :local` blocks automatically reference `..`,
+ensuring that hooks are always installed when `penchant gemfile` is executed, and adding the `:github` gem property
+that lets you pass in the username of the repo to reference that repo:
+`gem 'penchant', :github => 'johnbintz'`.
+
 ### Deployment mode
 
 Use `no_deployment` blocks to indicate gems that shouldn't even appear in `Gemfiles` destined for

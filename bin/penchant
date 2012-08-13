@@ -36,6 +36,17 @@ class PenchantCLI < Thor
   def convert
     install
     FileUtils.mv 'Gemfile', 'Gemfile.penchant'
+    prepend_to_file 'Gemfile.penchant', <<-RB
+# ensure git hooks are always installed
+ensure_git_hooks!
+
+# everything in the :local env is assumed to be a sibling directory of this one
+defaults_for env(:local), :path => '../%s'
+
+# reference a github repository with gem 'my-gem', :github => 'username'
+property :github, :git => 'git://github.com/$1/%s.git'
+
+    RB
     gemfile(:remote)
   end
 

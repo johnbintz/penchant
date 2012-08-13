@@ -22,7 +22,7 @@ Feature: CLI
       source :rubygems
       """
     When I run "bin/penchant convert" in the "tmp" directory
-    Then the file "tmp/Gemfile.penchant" should have the following content:
+    Then the file "tmp/Gemfile.penchant" should include the following content:
       """
       source :rubygems
       """

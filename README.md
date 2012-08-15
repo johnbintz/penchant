@@ -189,6 +189,17 @@ of `bundle exec rake` *after* I've already committed code. Since we have compute
 you can add `ensure_git_hooks!` anywhere in your `Gemfile.penchant` to make sure the git hooks are symlinked to the ones
 in the `script/hooks` directory with every processing of `Gemfile.penchant`.
 
+### Performing pre-`bundle exec rake` tasks.
+
+Example: I use a style of Cucumber testing where I co-opt the `@wip` tag and then tell Guard to only run scenarios with `@wip` tags.
+I don't want `@wip` tasks to be committed to the repo, since committing a half-completed scenario seems silly.
+So I use `bundle exec rake preflight_check` to check all feature files for `@wip` tasks, and to fail if I hit one. Yes, Cucumber
+already does this, but in order to get to `bundle exec rake`, I need to go through two `Gemfile` creations, one for `remote --deployment`
+and one for `remote` to make sure my tests work on remote gems only.
+
+If `bundle exec rake -T preflight_check` returns a task, that task will be run before all the `Gemfile` switcheroo. *Don't use it
+as a place to run your tests!*
+
 ### Skipping all that Rake falderal?
 
 Do it Travis CI style: stick `[ci skip]` in your commit message. That's why the meat of the git hooks resides in

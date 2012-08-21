@@ -61,3 +61,18 @@ Feature: CLI
     Given I have the symlink "tmp/.git/hooks/pre-commit" which points to "tmp/script/hooks/pre-commit"
     When I run "bin/penchant gemfile remote" in the "tmp" directory
     Then the output should not include "git hooks not installed"
+
+  @wip
+  Scenario: Install Penchant into a directory with no Gemfile
+    Given I have the directory "tmp"
+    When I run "bin/penchant install" in the "tmp" directory
+    Then the file "tmp/Gemfile.penchant" should include the following content:
+      """
+      source :rubygems
+      """
+    Then the file "tmp/Gemfile" should include the following content:
+      """
+      source :rubygems
+      """
+      And the output should include "No git"
+

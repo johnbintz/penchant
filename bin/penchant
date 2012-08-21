@@ -23,6 +23,16 @@ class PenchantCLI < Thor
     else
       puts "No git repository detected here. Skipping git hook installation..."
     end
+
+    if !File.file?('Gemfile') && !File.file?('Gemfile.penchant')
+      FileUtils.touch('Gemfile.penchant')
+
+      prepend_to_file 'Gemfile.penchant', <<-RB
+source :rubygems
+      RB
+
+      install_gemfile_penchant
+    end
   end
 
   desc "update", "Update the installed scripts"
@@ -36,18 +46,7 @@ class PenchantCLI < Thor
   def convert
     install
     FileUtils.mv 'Gemfile', 'Gemfile.penchant'
-    prepend_to_file 'Gemfile.penchant', <<-RB
-# ensure git hooks are always installed
-ensure_git_hooks!
-
-# everything in the :local env is assumed to be a sibling directory of this one
-defaults_for env(:local), :path => '../%s'
-
-# reference a github repository with gem 'my-gem', :github => 'username'
-property :github, :git => 'git://github.com/$1/%s.git'
-
-    RB
-    gemfile(:remote)
+    install_gemfile_penchant
   end
 
   method_options :deployment => false
@@ -117,6 +116,20 @@ property :github, :git => 'git://github.com/$1/%s.git'
         puts "[penchant] git hooks not installed. Run script/install-git-hooks."
         puts
       end
+    end
+
+    def install_gemfile_penchant
+      prepend_to_file 'Gemfile.penchant', <<-RB
+# ensure git hooks are always installed
+ensure_git_hooks!
+
+# everything in the :local env is assumed to be a sibling directory of this one
+defaults_for env(:local), :path => '../%s'
+
+# reference a github repository with gem 'my-gem', :github => 'username'
+property :github, :git => 'git://github.com/$1/%s.git'
+      RB
+      gemfile(:remote)
     end
   end
 

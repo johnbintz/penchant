@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $(bundle exec rake -T preflight_check | wc -l) -eq 1 ]; then
+if [ $(bundle exec rake -P | grep preflight_check | wc -l) -ne 0 ]; then
   bundle exec rake preflight_check
   R=$?
   if [ $R -ne 0 ]; then exit $R; fi
@@ -11,3 +11,4 @@ penchant gemfile remote --deployment
 GIT_DIR=$OLD_GIT_DIR
 git add Gemfile*
 
+exit 0

@@ -29,8 +29,12 @@ if [[ "${msg}" != *"[ci skip]"* ]]; then
     GIT_DIR=$OLD_GIT_DIR
   fi
 
-  bundle exec rake
-  R=$?
-  if [ $R -ne 0 ]; then exit $R; fi
+  if [ $(bundle exec rake -P | grep default | wc -l) -ne 0 ]; then
+    bundle exec rake
+    R=$?
+    if [ $R -ne 0 ]; then exit $R; fi
+  else
+    echo "[penchant] No default Rake task found! Add one if you want to run tests before committing."
+  fi
 fi
 

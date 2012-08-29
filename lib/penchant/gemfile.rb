@@ -138,6 +138,9 @@ module Penchant
       end
 
       def env(*args)
+        options = {}
+        options = args.pop if args.last.kind_of?(::Hash)
+
         @available_environments += args
 
         if block_given?
@@ -145,6 +148,16 @@ module Penchant
             @_current_env_defaults = _defaults_for(Env.new(environment))
             yield
             @_current_env_defaults = {}
+          else
+            if options[:opposite]
+              if for_environment?([ options[:opposite] ].flatten)
+                @_current_env_defaults = _defaults_for(Env.new(environment))
+                @_strip_pathing_options = true
+                yield
+                @_strip_pathing_options = false
+                @_current_env_defaults = {}
+              end
+            end
           end
         else
           Penchant::Gemfile::Env.new(args.shift)
@@ -203,7 +216,22 @@ module Penchant
       def process_options(gem_name, template = {})
         properties = {}
 
-        property_stack = _defaults_for(gem_name).dup.merge(template).to_a
+        property_stack = template.to_a
+
+        original_properties = process_option_stack(gem_name, property_stack)
+
+        if @_strip_pathing_options
+          [ :git, :branch, :path ].each { |key| original_properties.delete(key) }
+        end
+
+        properties = process_option_stack(gem_name, _defaults_for(gem_name).to_a).merge(original_properties)
+
+        Hash[properties.sort]
+      end
+
+      def process_option_stack(gem_name, stack)
+        property_stack = stack.dup
+        properties = {}
 
         while !property_stack.empty?
           key, value = property_stack.shift
@@ -227,8 +255,8 @@ module Penchant
             properties[key] = value
           end
         end
-
-        Hash[properties.sort]
+        
+        properties
       end
 
       def _defaults_for(gem_name)
@@ -322,11 +350,12 @@ module Penchant
 
         args = [ gem_name.first ]
         args << version if version
-        args << options if !options.empty?
 
         if options[:git]
           @defined_git_repos << Penchant::Repo.new(options[:git])
         end
+
+        args << options if !options.empty?
 
         @output << %{gem #{args_to_string(args)}}
       end

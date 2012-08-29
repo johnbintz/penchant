@@ -73,6 +73,15 @@ no_deployment do
       gems dev_gems, :github => 'johnbintz'
     end
 
+    # an even shorter way to specify environments!
+    # in remote env, expands to:
+    #     gem 'bullseye', :git => 'git://github.com/johnbintz/bullseye.git'
+    # in local env, expands to:
+    #     gem 'bullseye', :path => '../bullseye'
+    env :remote, :opposite => :local do
+      gem 'bullseye', :github => 'johnbintz'
+    end
+
     # only expanded on Mac OS X
     os :darwin do
       gem 'rb-fsevent'

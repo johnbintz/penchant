@@ -52,6 +52,7 @@ source :rubygems
   method_options :deployment => false
   method_options :switch_back => false
   method_options :no_auto_update => false
+  method_options :local => false
   desc "gemfile ENV", "Switch the gemfile environment, or rebuild the current environment if not given"
   def gemfile(env = get_current_env)
     check_git_hooks!
@@ -74,11 +75,17 @@ source :rubygems
       exit 1
     end
 
-    system %{bundle}
+    command = %{bundle}
+    command << " --local" if options[:local]
+
+    system command
 
     # it's asking for bundle update, we know what we're doing
     if $?.exitstatus == 6 and !options[:no_auto_update]
-      system %{bundle update}
+      command = %{bundle update}
+      command << " --local" if options[:local]
+
+      system command
     end
   end
 

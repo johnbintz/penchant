@@ -135,6 +135,8 @@ end
 Run `penchant gemfile ENV --deployment` to get this behavior. This is run by default when the
 pre-commit git hook runs, but only after the default Rake task passes.
 
+If you just want any locally installed gems, add the `--local` switch. Great if rubygems.org is down!
+
 #### Won't this change the project dependencies?!
 
 Probably not. You probably have the "main" gems in your project locked to a version of Rails or

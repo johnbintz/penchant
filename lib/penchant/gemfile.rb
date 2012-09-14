@@ -143,15 +143,17 @@ module Penchant
 
         @available_environments += args
 
+        requested_env_defaults = _defaults_for(Env.new(environment))
+
         if block_given?
           if for_environment?(args)
-            @_current_env_defaults = _defaults_for(Env.new(environment))
+            @_current_env_defaults = requested_env_defaults
             yield
             @_current_env_defaults = {}
           else
-            if options[:opposite]
-              if for_environment?([ options[:opposite] ].flatten)
-                @_current_env_defaults = _defaults_for(Env.new(environment))
+            if opposite_environment = (options[:opposite] or requested_env_defaults[:opposite])
+              if for_environment?([ environment, args, opposite_environment ].flatten.uniq)
+                @_current_env_defaults = requested_env_defaults
                 @_strip_pathing_options = true
                 yield
                 @_strip_pathing_options = false
@@ -160,12 +162,20 @@ module Penchant
             end
           end
         else
-          Penchant::Gemfile::Env.new(args.shift)
+          Env.new(args.shift)
         end
       end
 
       def property(name, hash = nil, &block)
         @properties[name] = hash || block
+      end
+
+      def opposites(left, right)
+        @defaults[Env.new(left).to_s] ||= {}
+        @defaults[Env.new(left).to_s][:opposite] = right
+
+        @defaults[Env.new(right).to_s] ||= {}
+        @defaults[Env.new(right).to_s][:opposite] = left
       end
 
       def for_environment?(envs)
@@ -225,6 +235,8 @@ module Penchant
         end
 
         properties = process_option_stack(gem_name, _defaults_for(gem_name).to_a).merge(original_properties)
+
+        properties.delete(:opposite)
 
         Hash[properties.sort]
       end

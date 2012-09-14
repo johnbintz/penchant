@@ -107,6 +107,22 @@ ensuring that hooks are always installed when `penchant gemfile` is executed, an
 that lets you pass in the username of the repo to reference that repo:
 `gem 'penchant', :github => 'johnbintz'`.
 
+### Stupid-simple local/remote setup
+
+Use `opposites :local, :remote` and environment settings for local/remote gems will be set accordingly depending
+on environment:
+
+``` ruby
+defaults_for env(:local), :path => '../%s'
+opposites :local, :remote
+
+env :remote do
+  gem 'my-gem', :git => 'git://github.com/johnbintz/my-gem.git'
+end
+```
+
+In `remote`, the Git repo version is used. In `local`, the path is used. Only one gem definition needed!
+
 ### Deployment mode
 
 Use `no_deployment` blocks to indicate gems that shouldn't even appear in `Gemfiles` destined for

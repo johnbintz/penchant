@@ -62,7 +62,6 @@ Feature: CLI
     When I run "bin/penchant gemfile remote" in the "tmp" directory
     Then the output should not include "git hooks not installed"
 
-  @wip
   Scenario: Install Penchant into a directory with no Gemfile
     Given I have the directory "tmp"
     When I run "bin/penchant install" in the "tmp" directory

@@ -197,7 +197,10 @@ module Penchant
       def defaults_for(*args)
         defaults = args.pop
 
-        args.flatten.each { |gem| @defaults[gem.to_s] = defaults.dup }
+        args.flatten.each do |gem|
+          @defaults[gem.to_s] ||= {}
+          @defaults[gem.to_s].merge!(defaults)
+        end
       end
 
       protected

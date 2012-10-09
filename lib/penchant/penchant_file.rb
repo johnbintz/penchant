@@ -25,7 +25,7 @@ module Penchant
 
       args << options if !options.empty?
 
-      @output << %{gem #{args_to_string(args)}}
+      self << %{gem #{args_to_string(args)}}
     end
 
     def gemspec
@@ -46,16 +46,16 @@ module Penchant
     end
 
     def group(*args, &block)
-      @output << ""
-      @output << %{group #{args_to_string(args)} do}
+      self << ""
+      self << %{group #{args_to_string(args)} do}
 
       call_and_indent_output(block)
 
-      @output << %{end}
+      self << %{end}
     end
 
     def source(*args)
-      @output << %{source #{args_to_string(args)}}
+      self << %{source #{args_to_string(args)}}
     end
   end
 end

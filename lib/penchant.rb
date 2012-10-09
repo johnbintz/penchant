@@ -6,4 +6,5 @@ module Penchant
   autoload :Env, 'penchant/env'
   autoload :FileProcessor, 'penchant/file_processor'
   autoload :PenchantFile, 'penchant/penchant_file'
+  autoload :Defaults, 'penchant/defaults'
 end

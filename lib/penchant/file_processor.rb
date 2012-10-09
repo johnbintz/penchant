@@ -20,7 +20,7 @@ module Penchant
       @data = data
       @available_environments = []
       @defined_git_repos = []
-      @defaults = {}
+      @defaults = Defaults.new
       @properties = {}
 
       @_current_env_defaults = {}
@@ -35,6 +35,10 @@ module Penchant
       handle_result(@data)
 
       @output.join("\n")
+    end
+
+    def <<(string)
+      @output << string
     end
 
     def env(*args)
@@ -71,11 +75,8 @@ module Penchant
     end
 
     def opposites(left, right)
-      @defaults[Env.new(left).to_s] ||= {}
-      @defaults[Env.new(left).to_s][:opposite] = right
-
-      @defaults[Env.new(right).to_s] ||= {}
-      @defaults[Env.new(right).to_s][:opposite] = left
+      @defaults[Env.new(left)][:opposite] = right
+      @defaults[Env.new(right)][:opposite] = left
     end
 
     def for_environment?(envs)
@@ -104,7 +105,7 @@ module Penchant
     end
 
     def ruby(version)
-      @output << %{ruby "#{version}"}
+      self << %{ruby "#{version}"}
     end
 
     protected
@@ -180,7 +181,7 @@ module Penchant
 
     def _defaults_for(gem_name)
       result = @_current_env_defaults
-      result.merge(@defaults[gem_name.to_s] || {})
+      result.merge(@defaults[gem_name] || {})
     end
 
     def current_os

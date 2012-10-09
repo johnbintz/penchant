@@ -203,6 +203,10 @@ module Penchant
         end
       end
 
+      def ruby(version)
+        @output << %{ruby "#{version}"}
+      end
+
       protected
       def args_to_string(args)
         args.inspect[1..-2]
@@ -218,9 +222,9 @@ module Penchant
         [ args, template ]
       end
 
-      def call_and_indent_output(block)
+      def call_and_indent_output(block = nil, &given_block)
         index = @output.length
-        block.call
+        (block || given_block).call
         index.upto(@output.length - 1) do |i|
           @output[i] = "  " + @output[i]
         end
@@ -270,7 +274,7 @@ module Penchant
             properties[key] = value
           end
         end
-        
+
         properties
       end
 

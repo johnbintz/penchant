@@ -1,5 +1,3 @@
-require 'erb'
-
 module Penchant
   class Gemfile
     attr_reader :path, :is_deployment
@@ -81,22 +79,6 @@ module Penchant
 
     def deployment?
       gemfile_header['deployment mode'] != nil
-    end
-
-    class Env
-      attr_accessor :name
-
-      def initialize(name)
-        @name = name.to_s
-      end
-
-      def ==(other)
-        @name == other.name
-      end
-
-      def to_s
-        "@#{name}"
-      end
     end
 
     class FileProcessor

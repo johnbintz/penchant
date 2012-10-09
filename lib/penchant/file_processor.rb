@@ -99,8 +99,7 @@ module Penchant
       defaults = args.pop
 
       args.flatten.each do |gem|
-        @defaults[gem.to_s] ||= {}
-        @defaults[gem.to_s].merge!(defaults)
+        @defaults[gem].merge!(defaults)
       end
     end
 

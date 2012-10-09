@@ -8,14 +8,6 @@ module Penchant
       new(data).result(*args)
     end
 
-    def self.handle_result(&block)
-      if block
-        @handle_result = block
-      else
-        @handle_result
-      end
-    end
-
     def initialize(data)
       @data = data
       @available_environments = []
@@ -32,7 +24,7 @@ module Penchant
 
       @output = []
 
-      handle_result(@data)
+      instance_eval(@data)
 
       @output.join("\n")
     end
@@ -103,10 +95,6 @@ module Penchant
       end
     end
 
-    def ruby(version)
-      self << %{ruby "#{version}"}
-    end
-
     protected
     def args_to_string(args)
       args.inspect[1..-2]
@@ -130,20 +118,6 @@ module Penchant
       end
     end
 
-    def process_options(gem_name, template = {})
-      original_properties = process_option_stack(gem_name, property_stack)
-
-      if @_strip_pathing_options
-        [ :git, :branch, :path ].each { |key| original_properties.delete(key) }
-      end
-
-      properties = process_option_stack(gem_name, _defaults_for(gem_name).to_a).merge(original_properties)
-
-      properties.delete(:opposite)
-
-      Hash[properties.sort]
-    end
-
     def _defaults_for(gem_name)
       result = @_current_env_defaults
       result.merge(@defaults[gem_name] || {})
@@ -159,10 +133,6 @@ module Penchant
       else
         host_os[%r{^[a-z]+}, 1].to_sym
       end
-    end
-
-    def handle_result(data)
-      instance_eval(data)
     end
 
     def gem(*args)
@@ -189,10 +159,6 @@ module Penchant
       self << %{gem #{args_to_string(args)}}
     end
 
-    def gemspec
-      @output << %{gemspec}
-    end
-
     def gems(*args)
       gems, template = split_args(args)
 
@@ -215,8 +181,20 @@ module Penchant
       self << %{end}
     end
 
+    def ruby(*args)
+      passthrough :ruby, *args
+    end
+
+    def gemspec
+      passthrough :gemspec
+    end
+
     def source(*args)
-      self << %{source #{args_to_string(args)}}
+      passthrough :source, *args
+    end
+
+    def passthrough(method, *args)
+      self << %{#{method} #{args_to_string(args)}}.strip
     end
   end
 end

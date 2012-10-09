@@ -49,16 +49,8 @@ module Penchant
       File.file?('.penchant')
     end
 
-    def gemfile_erb_path
-      file_in_path('Gemfile.erb')
-    end
-
     def gemfile_penchant_path
       file_in_path('Gemfile.penchant')
-    end
-
-    def has_gemfile_erb?
-      File.file?(gemfile_erb_path)
     end
 
     def has_gemfile_penchant?
@@ -66,11 +58,11 @@ module Penchant
     end
 
     def has_processable_gemfile?
-      has_gemfile_erb? || has_gemfile_penchant?
+      has_gemfile_penchant?
     end
 
     def processable_gemfile_path
-      has_gemfile_erb? ? gemfile_erb_path : gemfile_penchant_path
+      gemfile_penchant_path
     end
 
     def environment

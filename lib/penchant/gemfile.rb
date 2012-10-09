@@ -123,7 +123,7 @@ module Penchant
     end
 
     def builder
-      @builder ||= PenchantFile.new(template)
+      @builder ||= FileProcessor.new(template)
     end
 
     def template

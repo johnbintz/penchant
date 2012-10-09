@@ -5,7 +5,6 @@ module Penchant
   autoload :Hooks, 'penchant/hooks'
   autoload :Env, 'penchant/env'
   autoload :FileProcessor, 'penchant/file_processor'
-  autoload :PenchantFile, 'penchant/penchant_file'
   autoload :Defaults, 'penchant/defaults'
   autoload :CustomProperty, 'penchant/custom_property'
   autoload :PropertyStack, 'penchant/property_stack'

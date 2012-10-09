@@ -292,60 +292,6 @@ module Penchant
       end
     end
 
-    class ERBFile < FileProcessor
-      def handle_result(data)
-        $stderr.puts "ERB files are deprecated. Please convert them to the Ruby format."
-
-        @output << ERB.new(data, nil, nil, '@_erbout').result(binding)
-      end
-
-      def env(check, template = {}, &block)
-        if check.to_s == @environment.to_s
-          original_erbout = @_erbout.dup
-          @_erbout = ''
-
-          output = instance_eval(&block).lines.to_a
-
-          output.each do |line|
-            if gem_name = line[%r{gem ['"]([^'"]+)['"]}, 1]
-              new_line = line.rstrip
-
-              if !(options = process_options(gem_name, template)).empty?
-                new_line += ", #{options.inspect}"
-              end
-
-              line.replace(new_line + "\n")
-            end
-          end
-
-          @_erbout = original_erbout + output.join
-        end
-      end
-
-      def gems(*gems)
-        template = {}
-        template = gems.pop if gems.last.instance_of?(Hash)
-
-        gems.flatten.each do |gem|
-          @_current_gem = gem
-          if block_given?
-            yield
-          else
-            @_erbout += gem(template) + "\n"
-          end
-        end
-      end
-
-      def gem(template = {})
-        output = "gem '#{@_current_gem}'" 
-        options = process_options(@_current_gem, template)
-        if !options.empty?
-          output += ", #{options.inspect}"
-        end
-        output
-      end
-    end
-
     class PenchantFile < FileProcessor
       def handle_result(data)
         instance_eval(data)
@@ -456,16 +402,7 @@ module Penchant
     end
 
     def builder
-      return @builder if @builder
-
-      klass = case File.extname(processable_gemfile_path)
-      when '.penchant'
-        PenchantFile
-      when '.erb'
-        ERBFile
-      end
-
-      @builder = klass.new(template)
+      @builder ||= PenchantFile.new(template)
     end
 
     def template

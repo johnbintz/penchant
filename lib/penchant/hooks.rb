@@ -12,12 +12,9 @@ module Penchant
           return false if !File.symlink?(target)
           return false if !File.expand_path(File.readlink(target)) == File.expand_path(file)
         end
-
-        true
-      else
-        # no script/hooks dir, so we must not want them
-        true
       end
+
+      true
     end
 
     def self.install!

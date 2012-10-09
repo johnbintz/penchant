@@ -21,7 +21,7 @@ module Penchant
       @available_environments = []
       @defined_git_repos = []
       @defaults = Defaults.new
-      @properties = {}
+      @properties = PropertyStackBuilder.new(@defaults)
 
       @_current_env_defaults = {}
     end
@@ -131,9 +131,7 @@ module Penchant
     end
 
     def process_options(gem_name, template = {})
-      properties = {}
-
-      property_stack = template.to_a
+      properties = Properties.new(template)
 
       original_properties = process_option_stack(gem_name, property_stack)
 
@@ -146,36 +144,6 @@ module Penchant
       properties.delete(:opposite)
 
       Hash[properties.sort]
-    end
-
-    def process_option_stack(gem_name, stack)
-      property_stack = stack.dup
-      properties = {}
-
-      while !property_stack.empty?
-        key, value = property_stack.shift
-
-        if property = @properties[key]
-          values = [ value ].flatten
-
-          if property.respond_to?(:call)
-            property.call(*values).each do |k, v|
-              property_stack.push([ k, v ])
-            end
-          else
-            property.each do |k, v|
-              v = v.dup.gsub(%r{\$(\d+)}) { |m| values[m.to_i - 1 ] }
-              property_stack.push([ k, v ])
-            end
-          end
-        else
-          value = value % gem_name if value.respond_to?(:%)
-
-          properties[key] = value
-        end
-      end
-
-      properties
     end
 
     def _defaults_for(gem_name)

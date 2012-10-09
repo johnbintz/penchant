@@ -263,6 +263,7 @@ Feature: Gemfiles
       gem "two", {:require=>nil}
       """
 
+  @wip
   Scenario: Set the opposite environment in the environment defaults
     Given I have the file "Gemfile.penchant" with the content:
       """

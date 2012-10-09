@@ -14,7 +14,7 @@ module Penchant
 
       version = args.first
 
-      options = process_options(gem_name.first, template)
+      options = @properties.create_stack_for(template, @_strip_pathing_options).process_for_gem(gem_name.first, @_current_env_defaults)
 
       args = [ gem_name.first ]
       args << version if version
@@ -36,7 +36,7 @@ module Penchant
       gems, template = split_args(args)
 
       gems.flatten.each do |gem_name|
-        options = process_options(gem_name, template)
+        options = @properties.create_stack_for(template, @_strip_pathing_options).process_for_gem(gem_name)
 
         args = [ gem_name ]
         args << options if !options.empty?

@@ -7,7 +7,6 @@ module Penchant
   autoload :FileProcessor, 'penchant/file_processor'
   autoload :PenchantFile, 'penchant/penchant_file'
   autoload :Defaults, 'penchant/defaults'
-  autoload :Properties, 'penchant/properties'
   autoload :CustomProperty, 'penchant/custom_property'
   autoload :PropertyStack, 'penchant/property_stack'
   autoload :PropertyStackBuilder, 'penchant/property_stack_builder'

@@ -131,8 +131,6 @@ module Penchant
     end
 
     def process_options(gem_name, template = {})
-      properties = Properties.new(template)
-
       original_properties = process_option_stack(gem_name, property_stack)
 
       if @_strip_pathing_options

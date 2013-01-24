@@ -134,7 +134,19 @@ ensure_git_hooks!
 defaults_for env(:local), :path => '../%s'
 
 # reference a github repository with gem 'my-gem', :github => 'username'
-property :github, :git => 'git://github.com/$1/%s.git'
+# also supports modern bundler user/repo syntax
+property(:github) { |name|
+  parts = name.split('/')
+
+  url = case parts.length
+  when 1
+    "git://github.com/\#{name}/%s.git"
+  when 2
+    "git://github.com/\#{parts.first}/\#{parts.last}.git"
+  end
+
+  { :git => url }
+}
       RB
       gemfile(:remote)
     end

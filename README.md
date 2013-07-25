@@ -32,6 +32,9 @@ source :rubygems
 # ensure git hooks are installed when a gemfile is processed, see below
 ensure_git_hooks!
 
+# need the bundler UTF-8 fix? ask for it by name!
+bundler_encoding_fix!
+
 # deploying to heroku and want 1.9.3 goodness?
 ruby '1.9.3'
 

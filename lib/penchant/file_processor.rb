@@ -185,6 +185,15 @@ module Penchant
       passthrough :ruby, *args
     end
 
+    def bundler_encoding_fix!
+      self << (<<-RB)
+if RUBY_VERSION =~ /1.9/
+  Encoding.default_external = Encoding::UTF_8
+  Encoding.default_internal = Encoding::UTF_8
+end
+      RB
+    end
+
     def gemspec
       passthrough :gemspec
     end

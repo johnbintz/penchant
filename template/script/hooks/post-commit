@@ -1,5 +1,5 @@
 #!/bin/bash
 
 unset GIT_DIR
-penchant gemfile remote --switch-back
+echo "Run penchant gemfile remote to get back to work!"
 
